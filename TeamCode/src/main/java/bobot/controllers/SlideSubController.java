@@ -79,8 +79,8 @@ public class SlideSubController {
         double motor1Power = PDController1.calculate(motor1Position, targetPosition);
         double motor2Power = PDController2.calculate(motor2Position, targetPosition);
 
-        motor1.set(motor1Power >= 0.05 ? motor1Power : 0);
-        motor2.set(motor2Power >= 0.05 ? motor2Power : 0);
+        motor1.set(Math.abs(motor1Power) >= 0.05 ? motor1Power : 0);
+        motor2.set(Math.abs(motor2Power) >= 0.05 ? motor2Power : 0);
     }
 
     public void debug(MultipleTelemetry multipleTelemetry) {

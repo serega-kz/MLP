@@ -257,7 +257,7 @@ public class YameteKudasai {
                 targetState = SPECIMEN_INTAKE;
             }
         } else if (currentState == SPECIMEN_INTAKE_3) {
-            if (transitionTime.time() <= 700) return;
+            if (transitionTime.time() <= 800) return;
 
             armSubController.setElbowPosition(ArmState.SPECIMEN_OUTTAKE.elbowPosition);
             armSubController.setWristPosition(ArmState.SPECIMEN_OUTTAKE.wristPosition);

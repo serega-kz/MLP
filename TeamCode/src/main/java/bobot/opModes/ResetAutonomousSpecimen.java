@@ -11,7 +11,7 @@ public class ResetAutonomousSpecimen extends ResetOpMode {
 
     @Override
     public void runOpMode() {
-        opMode = OpMode.AUTONOMOUS_SAMPLE;
+        opMode = OpMode.AUTONOMOUS_SPECIMEN;
         super.runOpMode();
     }
 }

@@ -35,15 +35,9 @@ public class ResetOpMode extends LinearOpMode {
 
         transitionTime.reset();
         while (opModeIsActive()) {
-            if (opMode == OpMode.AUTONOMOUS_SAMPLE) armSubController.setWristPosition(ArmState.SAMPLE_OUTTAKE1.wristPosition);
-            else if (opMode == OpMode.AUTONOMOUS_SPECIMEN) armSubController.setWristPosition(ArmState.SPECIMEN_OUTTAKE.wristPosition);
-            else if (opMode == OpMode.TELEOPUS) armSubController.setWristPosition(ArmState.SAMPLE_INTAKE1.wristPosition);
-
-            while (transitionTime.time() <= 250) {}
-
             armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
 
-            while (transitionTime.time() <= 1000) {}
+            while (transitionTime.time() <= 500) {}
 
             slideMotor1.set(-0.80);
             slideMotor2.set(-0.80);
@@ -79,7 +73,7 @@ public class ResetOpMode extends LinearOpMode {
             else if (opMode == OpMode.TELEOPUS) armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
 
             transitionTime.reset();
-            while (transitionTime.time() <= 1000) pivotSubController.update();
+            while (pivotSubController.isCooking()) pivotSubController.update();
 
             slideMotor1.stopAndResetEncoder();
             slideMotor2.stopAndResetEncoder();

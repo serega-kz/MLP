@@ -4,6 +4,9 @@ import static bobot.controllers.YameteKudasai.*;
 import static bobot.controllers.YameteKudasai.Alliance.*;
 import static bobot.opModes.AutonomousSpecimen.PathState.*;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -12,10 +15,15 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
-import com.pedropathing.util.Timer;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.List;
 
 import bobot.controllers.YameteKudasai;
 import pedroPathing.constants.FConstants;
@@ -24,9 +32,14 @@ import pedroPathing.constants.LConstants;
 @Autonomous(group = "!0autonomous")
 public class AutonomousSpecimen extends OpMode {
 
+    private List<LynxModule> allHubs;
+    private double lastTimeStamp;
+
     private YameteKudasai やめてください;
     private Follower follower;
-    private Timer pathTimer;
+
+    private VoltageSensor voltageSensor;
+    private MultipleTelemetry multipleTelemetry;
 
     private final Pose startPose = new Pose(7.900, 53.500);
     private final Pose scorePose = new Pose(50.000, 53.500);
@@ -128,18 +141,28 @@ public class AutonomousSpecimen extends OpMode {
 
     private void setPathState(PathState pathState) {
         this.pathState = pathState;
-        pathTimer.resetTimer();
     }
 
     @Override
     public void init() {
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+
         やめてください = new YameteKudasai(hardwareMap, NONE, YameteKudasai.OpMode.AUTONOMOUS_SPECIMEN);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
 
-        pathTimer = new Timer();
+        voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+        multipleTelemetry = new MultipleTelemetry(telemetry, dashboardTelemetry);
+
+        multipleTelemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
+        multipleTelemetry.setMsTransmissionInterval(50);
 
         buildPaths();
     }
@@ -147,16 +170,33 @@ public class AutonomousSpecimen extends OpMode {
     @Override
     public void start() {
         setPathState(PathState.SCORE_PRELOAD);
+        lastTimeStamp = 0;
     }
 
     @Override
     public void loop() {
+        for (LynxModule hub : allHubs) hub.clearBulkCache();
+
+        double currentTimeStamp = (double) System.nanoTime() / 1E9;
+        if (lastTimeStamp == 0) lastTimeStamp = currentTimeStamp;
+
+        double period = currentTimeStamp - lastTimeStamp;
+        lastTimeStamp = currentTimeStamp;
+
         follower.update();
+        やめてください.update();
         autonomousPathUpdate();
 
-        telemetry.addData("path state", pathState);
-        telemetry.addData("path time", pathTimer.getElapsedTime());
-        telemetry.update();
+        multipleTelemetry.addData("current state", やめてください.getCurrentState());
+        multipleTelemetry.addData("path state", pathState);
+
+        double frequency = 1 / period;
+        double voltage = voltageSensor.getVoltage();
+
+        multipleTelemetry.addData("frequency", frequency);
+        multipleTelemetry.addData("voltage", voltage);
+
+        multipleTelemetry.update();
     }
 
     public enum PathState {

@@ -8,7 +8,6 @@ import static bobot.controllers.YameteKudasai.State.*;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import bobot.Teleopus.Alliance;
 import bobot.controllers.ArmSubController.ArmState;
 import bobot.controllers.ArmSubController.SampleColor;
 import bobot.controllers.PivotSubController.PivotState;
@@ -239,25 +238,28 @@ public class YameteKudasai {
             if (transitionTime.time() <= 200) return;
 
             armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE2.clawPosition);
-            currentState = SPECIMEN_INTAKE_2;
+            currentState = SPECIMEN_INTAKE_3;
         } else if (currentState == SPECIMEN_INTAKE_2) {
             if (transitionTime.time() <= 300) return;
+
+            armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
+            currentState = SPECIMEN_INTAKE_3;
+        } else if (currentState == SPECIMEN_INTAKE_3) {
+            if (transitionTime.time() <= 500) return;
 
             SampleColor sampleColor = armSubController.getSampleColor();
             if (sampleColor != NONE) {
                 armSubController.setSensorLED(false);
                 armSubController.setShoulderPosition(ArmState.SPECIMEN_OUTTAKE.shoulderPosition);
                 slideSubController.setTargetPosition(SlideState.SPECIMEN_OUTTAKE.targetPosition);
-                currentState = SPECIMEN_INTAKE_3;
+                currentState = SPECIMEN_INTAKE_4;
             } else {
-                armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
                 armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
-
                 currentState = SPECIMEN_INTAKE;
                 targetState = SPECIMEN_INTAKE;
             }
-        } else if (currentState == SPECIMEN_INTAKE_3) {
-            if (transitionTime.time() <= 800) return;
+        } else if (currentState == SPECIMEN_INTAKE_4) {
+            if (transitionTime.time() <= 1000) return;
 
             armSubController.setElbowPosition(ArmState.SPECIMEN_OUTTAKE.elbowPosition);
             armSubController.setWristPosition(ArmState.SPECIMEN_OUTTAKE.wristPosition);
@@ -372,9 +374,12 @@ public class YameteKudasai {
         return currentState;
     }
 
-    public enum OpMode {AUTONOMOUS_SAMPLE, AUTONOMOUS_SPECIMEN, TELEOPUS}
+
+    public enum Alliance {RED, BLUE, NONE}
 
     public enum Direction {ANTICLOCKWISE, CLOCKWISE}
+
+    public enum OpMode {AUTONOMOUS_SAMPLE, AUTONOMOUS_SPECIMEN, TELEOPUS}
 
     public enum ScoringMode {SAMPLE, CYCLING, SPECIMEN, ASCENT}
 
@@ -403,6 +408,7 @@ public class YameteKudasai {
         SPECIMEN_INTAKE_1,
         SPECIMEN_INTAKE_2,
         SPECIMEN_INTAKE_3,
+        SPECIMEN_INTAKE_4,
         SPECIMEN_OUTTAKE_1,
         SPECIMEN_OUTTAKE_2,
         CYCLING1,

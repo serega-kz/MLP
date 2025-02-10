@@ -1,5 +1,7 @@
 package bobot.opModes;
 
+import static bobot.controllers.YameteKudasai.Alliance.BLUE;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import bobot.Teleopus;
@@ -9,7 +11,7 @@ public class TeleopusBlue extends Teleopus {
 
     @Override
     public void runOpMode() {
-        alliance = Alliance.BLUE;
+        alliance = BLUE;
         super.runOpMode();
     }
 }

@@ -121,6 +121,4 @@ public class Teleopus extends LinearOpMode {
             multipleTelemetry.update();
         }
     }
-
-    public enum Alliance {RED, BLUE}
 }

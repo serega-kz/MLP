@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import bobot.Teleopus;
 
-@TeleOp(group = "!0teleop")
+@TeleOp(group = "!0teleopus")
 public class TeleopusRed extends Teleopus {
 
     @Override

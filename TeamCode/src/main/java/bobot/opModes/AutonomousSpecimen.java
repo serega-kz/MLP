@@ -110,10 +110,13 @@ public class AutonomousSpecimen extends OpMode {
         } else if (pathState == GRAB_PICKUP) {
             if (isFollowerCooking()) return;
 
+            やめてください.proceedTransition();
             follower.followPath(grabPickup);
             setPathState(PICK_SPECIMEN1);
         } else if (pathState == PICK_SPECIMEN1 || pathState == PICK_SPECIMEN2 || pathState == PICK_SPECIMEN3 || pathState == PICK_SPECIMEN4) {
-            if (やめてください.getCurrentState() == State.SPECIMEN_INTAKE) やめてください.proceedTransition(false);
+            if (isFollowerCooking()) return;
+
+            if (やめてください.getCurrentState() == State.SPECIMEN_INTAKE) やめてください.proceedTransition();
             if (やめてください.getCurrentState() == State.SPECIMEN_INTAKE_4) setPathState(PathState.values()[pathState.ordinal() + 1]);
         } else if (pathState == SCORE_SPECIMEN1 || pathState == SCORE_SPECIMEN2 || pathState == SCORE_SPECIMEN3 || pathState == SCORE_SPECIMEN4) {
             if (isFollowerCooking()) return;
@@ -123,15 +126,16 @@ public class AutonomousSpecimen extends OpMode {
         } else if (pathState == GRAB_SPECIMEN1 || pathState == GRAB_SPECIMEN2 || pathState == GRAB_SPECIMEN3) {
             if (isFollowerCooking()) return;
 
+            やめてください.proceedTransition();
             follower.followPath(grabSpecimen);
             setPathState(PathState.values()[pathState.ordinal() + 1]);
         } else if (pathState == PARK) {
             if (isFollowerCooking()) return;
 
             follower.followPath(park, true);
-            setPathState(TRANSITION_TO_TELEOP);
+            setPathState(TRANSITION_TO_TELEOPUS);
         }
-        else if (pathState == TRANSITION_TO_TELEOP) {
+        else if (pathState == TRANSITION_TO_TELEOPUS) {
             if (isFollowerCooking()) return;
 
             やめてください.setScoringMode(ScoringMode.SAMPLE);
@@ -214,7 +218,7 @@ public class AutonomousSpecimen extends OpMode {
         PICK_SPECIMEN4,
         SCORE_SPECIMEN4,
         PARK,
-        TRANSITION_TO_TELEOP,
+        TRANSITION_TO_TELEOPUS,
         AUTONOMOUS_FINISHED
     }
 }

@@ -99,7 +99,7 @@ public class Teleopus extends LinearOpMode {
                 やめてください.setScoringMode(scoringMode);
             }
 
-            if (driverOp.wasJustPressed(Button.A)) やめてください.proceedTransition(false);
+            if (driverOp.wasJustPressed(Button.A)) やめてください.proceedTransition();
 
             double leftTrigger = scaleInput(driverOp.getTrigger(Trigger.LEFT_TRIGGER), downscale);
             double rightTrigger = scaleInput(driverOp.getTrigger(Trigger.RIGHT_TRIGGER), downscale);

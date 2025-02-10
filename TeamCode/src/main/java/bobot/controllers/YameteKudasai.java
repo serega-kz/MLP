@@ -19,12 +19,13 @@ public class YameteKudasai {
     private final PivotSubController pivotSubController;
     private final SlideSubController slideSubController;
 
-    private final ElapsedTime transitionTime;
+    private final ElapsedTime transitionTimer;
     private final SampleColor allianceColor;
 
     private State currentState, targetState;
     private ScoringMode scoringMode;
 
+    private boolean isAutonomous = false;
     private double wristRotationTimeout = 0;
 
     public YameteKudasai(HardwareMap hardwareMap, Alliance alliance, OpMode opMode) {
@@ -32,17 +33,18 @@ public class YameteKudasai {
         pivotSubController = new PivotSubController(hardwareMap);
         slideSubController = new SlideSubController(hardwareMap);
 
-        transitionTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        transitionTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         allianceColor = alliance == Alliance.RED ? RED : BLUE;
-
         if (opMode == AUTONOMOUS_SAMPLE) {
-            armSubController.setTargetState(ArmState.SAMPLE_OUTTAKE1);
+            armSubController.setTargetState(ArmState.SAMPLE_OUTTAKE2);
             targetState = AUTONOMOUS_SAMPLE_START;
             scoringMode = SAMPLE;
+            isAutonomous = true;
         } else if (opMode == AUTONOMOUS_SPECIMEN) {
             armSubController.setTargetState(ArmState.SPECIMEN_OUTTAKE);
             targetState = AUTONOMOUS_SPECIMEN_START;
             scoringMode = SPECIMEN;
+            isAutonomous = true;
         } else if (opMode == TELEOPUS) {
             targetState = TELEOPUS_START;
             scoringMode = SAMPLE;
@@ -73,10 +75,20 @@ public class YameteKudasai {
         proceedTransition(true);
     }
 
+    public void proceedAutoTransition() {
+        transitionTimer.reset();
+        if (currentState == SAMPLE_OUTTAKE) targetState = SAMPLE_INTAKE_AUTO;
+        else if (currentState == SAMPLE_INTAKE_AUTO) targetState = SAMPLE_OUTTAKE_AUTO;
+    }
+
+    public void proceedTransition() {
+        proceedTransition(false);
+    }
+
     public void proceedTransition(boolean scoringModeJustChanged) {
         if (currentState != targetState) return;
 
-        transitionTime.reset();
+        transitionTimer.reset();
         int stateIndex = currentState.ordinal();
 
         if (scoringMode == SAMPLE && scoringModeJustChanged) {
@@ -138,7 +150,7 @@ public class YameteKudasai {
             slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE2.targetPosition);
             currentState = SAMPLE_INTAKE1_1;
         } else if (currentState == SAMPLE_INTAKE1_1) {
-            if (transitionTime.time() <= 250) return;
+            if (transitionTimer.time() <= 250) return;
 
             armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE2.shoulderPosition);
             armSubController.setElbowPosition(ArmState.SAMPLE_INTAKE2.elbowPosition);
@@ -153,35 +165,49 @@ public class YameteKudasai {
             armSubController.setSensorLED(true);
             currentState = SAMPLE_INTAKE2_1;
         } else if (currentState == SAMPLE_INTAKE2_1) {
-            if (transitionTime.time() <= 200) return;
-            transitionTime.reset();
+            if (transitionTimer.time() <= 200) return;
+            transitionTimer.reset();
 
             armSubController.setClawPosition(ArmState.SAMPLE_INTAKE3.clawPosition);
             currentState = SAMPLE_INTAKE2_2;
         } else if (currentState == SAMPLE_INTAKE2_2) {
-            if (transitionTime.time() <= 300) return;
+            if (transitionTimer.time() <= 300) return;
 
             armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE2.shoulderPosition);
             currentState = SAMPLE_INTAKE2_3;
         } else if (currentState == SAMPLE_INTAKE2_3) {
-            if (transitionTime.time() <= 500) return;
-            transitionTime.reset();
+            if (transitionTimer.time() <= 500) return;
+            transitionTimer.reset();
 
             SampleColor sampleColor = armSubController.getSampleColor();
-            if (sampleColor == YELLOW || sampleColor == allianceColor) {
+            if (sampleColor == YELLOW || sampleColor == allianceColor || isAutonomous) {
                 armSubController.setWristPosition(ArmState.SAMPLE_INTAKE1.wristPosition);
                 wristRotationTimeout = 75 * armSubController.getWristDeviationCount();
                 armSubController.setSensorLED(false);
 
                 currentState = SAMPLE_INTAKE3;
                 if (scoringMode == SAMPLE || sampleColor == YELLOW) targetState = SAMPLE_OUTTAKE;
-                if (scoringMode == CYCLING) targetState = CYCLING1;
+                else if (scoringMode == CYCLING) targetState = CYCLING1;
             } else {
                 armSubController.setClawPosition(ArmState.SAMPLE_INTAKE2.clawPosition);
 
                 currentState = SAMPLE_INTAKE2;
                 targetState = SAMPLE_INTAKE2;
             }
+        } else if (currentState == SAMPLE_INTAKE_AUTO && targetState == SAMPLE_OUTTAKE_AUTO) {
+            armSubController.setClawPosition(ArmState.SAMPLE_OUTTAKE1.clawPosition);
+            currentState = SAMPLE_INTAKE_AUTO_1;
+        } else if (currentState == SAMPLE_INTAKE_AUTO_1) {
+            if (transitionTimer.time() <= 100) return;
+
+            slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE_HIGH.targetPosition);
+            currentState = SAMPLE_INTAKE_AUTO_2;
+        } else if (currentState == SAMPLE_INTAKE_AUTO_2) {
+            if (slideSubController.isCooking()) return;
+
+            armSubController.setShoulderPosition(ArmState.SAMPLE_OUTTAKE2.shoulderPosition);
+            armSubController.setElbowPosition(ArmState.SAMPLE_OUTTAKE2.elbowPosition);
+            currentState = SAMPLE_OUTTAKE;
         }
     }
 
@@ -189,7 +215,7 @@ public class YameteKudasai {
         completeSampleIntakeTransition();
 
         if (currentState == SAMPLE_INTAKE3 && targetState == SAMPLE_OUTTAKE) {
-            if (transitionTime.time() <= wristRotationTimeout) return;
+            if (transitionTimer.time() <= wristRotationTimeout) return;
 
             armSubController.setShoulderPosition(ArmState.SAMPLE_OUTTAKE1.shoulderPosition);
             armSubController.setElbowPosition(ArmState.SAMPLE_OUTTAKE1.elbowPosition);
@@ -205,7 +231,7 @@ public class YameteKudasai {
         } else if (currentState == SAMPLE_INTAKE3_2) {
              if (pivotSubController.isCooking()) return;
 
-            armSubController.setWristPosition(armSubController.getWristScoringPosition());
+            armSubController.setWristPosition(ArmState.SAMPLE_OUTTAKE2.wristPosition);
             slideSubController.setTargetPosition(slideSubController.getScoringPosition());
             currentState = SAMPLE_OUTTAKE;
         } else if (currentState == SAMPLE_OUTTAKE && targetState == SAMPLE_INTAKE1) {
@@ -213,12 +239,12 @@ public class YameteKudasai {
             slideSubController.updateScoringPosition();
             currentState = SAMPLE_OUTTAKE_1;
         } else if (currentState == SAMPLE_OUTTAKE_1) {
-            if (transitionTime.time() <= 100) return;
+            if (transitionTimer.time() <= 100) return;
 
             armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
             currentState = SAMPLE_OUTTAKE_2;
         } else if (currentState == SAMPLE_OUTTAKE_2) {
-            if (transitionTime.time() <= 300) return;
+            if (transitionTimer.time() <= 300) return;
 
             slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
             currentState = SAMPLE_OUTTAKE_3;
@@ -227,6 +253,24 @@ public class YameteKudasai {
 
             pivotSubController.setTargetPosition(PivotState.SAMPLE_INTAKE.targetPosition);
             currentState = SAMPLE_INTAKE1;
+        } else if (currentState == SAMPLE_OUTTAKE && targetState == SAMPLE_INTAKE_AUTO) {
+            armSubController.setClawPosition(ArmState.SAMPLE_OUTTAKE2.clawPosition);
+            currentState = SAMPLE_OUTTAKE_AUTO_1;
+        } else if (currentState == SAMPLE_OUTTAKE_AUTO_1) {
+            if (transitionTimer.time() <= 100) return;
+
+            armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
+            currentState = SAMPLE_OUTTAKE_AUTO_2;
+        } else if (currentState == SAMPLE_OUTTAKE_AUTO_2) {
+            if (transitionTimer.time() <= 300) return;
+
+            slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
+            currentState = SAMPLE_OUTTAKE_AUTO_3;
+        } else if (currentState == SAMPLE_OUTTAKE_AUTO_3) {
+            if (slideSubController.isCooking()) return;
+
+            armSubController.setTargetState(ArmState.SAMPLE_INTAKE_AUTO);
+            currentState = SAMPLE_OUTTAKE_AUTO_4;
         }
     }
 
@@ -235,17 +279,17 @@ public class YameteKudasai {
             armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE2.shoulderPosition);
             currentState = SPECIMEN_INTAKE_1;
         } else if (currentState == SPECIMEN_INTAKE_1) {
-            if (transitionTime.time() <= 200) return;
+            if (transitionTimer.time() <= 200) return;
 
             armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE2.clawPosition);
             currentState = SPECIMEN_INTAKE_3;
         } else if (currentState == SPECIMEN_INTAKE_2) {
-            if (transitionTime.time() <= 300) return;
+            if (transitionTimer.time() <= 300) return;
 
             armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
             currentState = SPECIMEN_INTAKE_3;
         } else if (currentState == SPECIMEN_INTAKE_3) {
-            if (transitionTime.time() <= 500) return;
+            if (transitionTimer.time() <= 500) return;
 
             SampleColor sampleColor = armSubController.getSampleColor();
             if (sampleColor != NONE) {
@@ -259,7 +303,7 @@ public class YameteKudasai {
                 targetState = SPECIMEN_INTAKE;
             }
         } else if (currentState == SPECIMEN_INTAKE_4) {
-            if (transitionTime.time() <= 1000) return;
+            if (transitionTimer.time() <= 1000) return;
 
             armSubController.setElbowPosition(ArmState.SPECIMEN_OUTTAKE.elbowPosition);
             armSubController.setWristPosition(ArmState.SPECIMEN_OUTTAKE.wristPosition);
@@ -268,17 +312,17 @@ public class YameteKudasai {
             armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
             currentState = SPECIMEN_OUTTAKE_1;
         } else if (currentState == SPECIMEN_OUTTAKE_1) {
-            if (transitionTime.time() <= 100) return;
-
-            armSubController.setElbowPosition(ArmState.SPECIMEN_INTAKE1.elbowPosition);
-            armSubController.setWristPosition(ArmState.SPECIMEN_INTAKE1.wristPosition);
-            currentState = SPECIMEN_OUTTAKE_2;
-        } else if (currentState == SPECIMEN_OUTTAKE_2) {
-            if (transitionTime.time() <= 500) return;
+            if (transitionTimer.time() <= 100) return;
 
             armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
-            armSubController.setSensorLED(true);
             slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE.targetPosition);
+            currentState = SPECIMEN_OUTTAKE_2;
+        } else if (currentState == SPECIMEN_OUTTAKE_2) {
+            if (transitionTimer.time() <= 500) return;
+
+            armSubController.setSensorLED(true);
+            armSubController.setElbowPosition(ArmState.SPECIMEN_INTAKE1.elbowPosition);
+            armSubController.setWristPosition(ArmState.SPECIMEN_INTAKE1.wristPosition);
             currentState = SPECIMEN_INTAKE;
         }
     }
@@ -287,7 +331,7 @@ public class YameteKudasai {
         completeSampleIntakeTransition();
 
         if (currentState == SAMPLE_INTAKE3 && targetState == CYCLING1) {
-            if (transitionTime.time() <= wristRotationTimeout) return;
+            if (transitionTimer.time() <= wristRotationTimeout) return;
 
             armSubController.setElbowPosition(ArmState.SAMPLE_INTAKE1.elbowPosition);
             slideSubController.setTargetPosition(SlideState.CYCLING1.targetPosition);
@@ -299,7 +343,7 @@ public class YameteKudasai {
             armSubController.setClawPosition(ArmState.SAMPLE_INTAKE1.clawPosition);
             currentState = CYCLING2_1;
         } else if (currentState == CYCLING2_1) {
-            if (transitionTime.time() <= 100) return;
+            if (transitionTimer.time() <= 100) return;
 
             slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
             currentState = SAMPLE_INTAKE1;
@@ -374,7 +418,6 @@ public class YameteKudasai {
         return currentState;
     }
 
-
     public enum Alliance {RED, BLUE, NONE}
 
     public enum Direction {ANTICLOCKWISE, CLOCKWISE}
@@ -392,6 +435,8 @@ public class YameteKudasai {
         SAMPLE_INTAKE2,
         SAMPLE_INTAKE3,
         SAMPLE_OUTTAKE,
+        SAMPLE_INTAKE_AUTO,
+        SAMPLE_OUTTAKE_AUTO,
         SAMPLE_INTAKE1_1,
         SAMPLE_INTAKE1_2,
         SAMPLE_INTAKE2_1,
@@ -403,6 +448,13 @@ public class YameteKudasai {
         SAMPLE_OUTTAKE_1,
         SAMPLE_OUTTAKE_2,
         SAMPLE_OUTTAKE_3,
+        SAMPLE_INTAKE_AUTO_1,
+        SAMPLE_INTAKE_AUTO_2,
+        SAMPLE_INTAKE_AUTO_3,
+        SAMPLE_OUTTAKE_AUTO_1,
+        SAMPLE_OUTTAKE_AUTO_2,
+        SAMPLE_OUTTAKE_AUTO_3,
+        SAMPLE_OUTTAKE_AUTO_4,
         SPECIMEN_INTAKE,
         SPECIMEN_OUTTAKE,
         SPECIMEN_INTAKE_1,

@@ -21,8 +21,6 @@ public class ArmSubController {
     private final Servo shoulderServo1, shoulderServo2;
     private final Servo elbowServo, wristServo, clawServo;
 
-    private double wristScoringPosition = SAMPLE_OUTTAKE2.wristPosition + WRIST_POSITION_DEVIATION;
-
     public ArmSubController(HardwareMap hardwareMap) {
         colorSensor = hardwareMap.get(ColorSensor.class, "armColor");
 
@@ -72,13 +70,6 @@ public class ArmSubController {
         return wristDeviation / WRIST_POSITION_DEVIATION;
     }
 
-    public double getWristScoringPosition() {
-        wristScoringPosition += WRIST_POSITION_DEVIATION;
-        if (wristScoringPosition > SAMPLE_OUTTAKE2.wristPosition) wristScoringPosition -= 3 * WRIST_POSITION_DEVIATION;
-
-        return wristScoringPosition;
-    }
-
     public void deviateWristPosition(double deviation) {
         double currentPosition = wristServo.getPosition();
 
@@ -116,6 +107,7 @@ public class ArmSubController {
         SAMPLE_INTAKE3(0.000, 0.000, 0.000, 0.000),
         SAMPLE_OUTTAKE1(0.000, 0.000, 0.000, 0.000),
         SAMPLE_OUTTAKE2(0.000, 0.000, 0.000, 0.000),
+        SAMPLE_INTAKE_AUTO(0.000, 0.000, 0.000, 0.000),
         SPECIMEN_INTAKE1(0.000, 0.000, 0.000, 0.000),
         SPECIMEN_INTAKE2(0.000, 0.000, 0.000, 0.000),
         SPECIMEN_OUTTAKE(0.000, 0.000, 0.000, 0.000),

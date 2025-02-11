@@ -135,7 +135,7 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == SCORE_PICKUP1) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
 
-            follower.followPath(scorePickup1);
+            follower.followPath(scorePickup1, true);
             setPathState(SCORE_PICKUP1_1);
         } else if (pathState == SCORE_PICKUP1_1) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
@@ -162,7 +162,7 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == SCORE_PICKUP2) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
 
-            follower.followPath(scorePickup2);
+            follower.followPath(scorePickup2, true);
             setPathState(SCORE_PICKUP2_1);
         } else if (pathState == SCORE_PICKUP2_1) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
@@ -184,7 +184,7 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == SCORE_PICKUP3) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO_2) return;
 
-            follower.followPath(scorePickup3);
+            follower.followPath(scorePickup3, true);
             setPathState(SCORE_PICKUP3_1);
         } else if (pathState == SCORE_PICKUP3_1) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
@@ -195,7 +195,7 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == PARK) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
-            follower.followPath(park);
+            follower.followPath(park, true);
             setPathState(AUTONOMOUS_FINISHED);
         }
     }

@@ -27,7 +27,7 @@ public class Teleopus extends LinearOpMode {
     protected Alliance alliance;
 
     private double scaleInput(double input, boolean downscale) {
-        double coefficient = downscale ? 0.2 : 1;
+        double coefficient = downscale ? 0.4 : 1;
         return coefficient * Math.abs(input) * input;
     }
 

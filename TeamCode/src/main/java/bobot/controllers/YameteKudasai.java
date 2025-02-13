@@ -261,7 +261,7 @@ public class YameteKudasai {
             if (slideSubController.isCooking()) return;
 
             armSubController.setTargetState(ArmState.SAMPLE_INTAKE_AUTO);
-            currentState = SAMPLE_OUTTAKE_AUTO_4;
+            currentState = SAMPLE_INTAKE_AUTO;
         }
     }
 
@@ -429,11 +429,9 @@ public class YameteKudasai {
         SAMPLE_OUTTAKE_3,
         SAMPLE_INTAKE_AUTO_1,
         SAMPLE_INTAKE_AUTO_2,
-        SAMPLE_INTAKE_AUTO_3,
         SAMPLE_OUTTAKE_AUTO_1,
         SAMPLE_OUTTAKE_AUTO_2,
         SAMPLE_OUTTAKE_AUTO_3,
-        SAMPLE_OUTTAKE_AUTO_4,
         SPECIMEN_INTAKE,
         SPECIMEN_OUTTAKE,
         SPECIMEN_INTAKE_1,

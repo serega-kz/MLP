@@ -295,34 +295,24 @@ public class YameteKudasai {
             if (sampleColor != NONE) {
                 armSubController.setSensorLED(false);
                 armSubController.setShoulderPosition(ArmState.SPECIMEN_OUTTAKE.shoulderPosition);
+                armSubController.setElbowPosition(ArmState.SPECIMEN_OUTTAKE.elbowPosition);
                 slideSubController.setTargetPosition(SlideState.SPECIMEN_OUTTAKE.targetPosition);
-                currentState = SPECIMEN_INTAKE_4;
+                currentState = SPECIMEN_OUTTAKE;
             } else {
                 armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
                 currentState = SPECIMEN_INTAKE;
                 targetState = SPECIMEN_INTAKE;
             }
-        } else if (currentState == SPECIMEN_INTAKE_4) {
-            if (transitionTimer.time() <= 1000) return;
-
-            armSubController.setElbowPosition(ArmState.SPECIMEN_OUTTAKE.elbowPosition);
-            armSubController.setWristPosition(ArmState.SPECIMEN_OUTTAKE.wristPosition);
-            currentState = SPECIMEN_OUTTAKE;
         } else if (currentState == SPECIMEN_OUTTAKE && targetState == SPECIMEN_INTAKE) {
             armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
             currentState = SPECIMEN_OUTTAKE_1;
         } else if (currentState == SPECIMEN_OUTTAKE_1) {
             if (transitionTimer.time() <= 100) return;
 
-            armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
-            slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE.targetPosition);
-            currentState = SPECIMEN_OUTTAKE_2;
-        } else if (currentState == SPECIMEN_OUTTAKE_2) {
-            if (transitionTimer.time() <= 500) return;
-
             armSubController.setSensorLED(true);
+            armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
             armSubController.setElbowPosition(ArmState.SPECIMEN_INTAKE1.elbowPosition);
-            armSubController.setWristPosition(ArmState.SPECIMEN_INTAKE1.wristPosition);
+            slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE.targetPosition);
             currentState = SPECIMEN_INTAKE;
         }
     }
@@ -460,9 +450,7 @@ public class YameteKudasai {
         SPECIMEN_INTAKE_1,
         SPECIMEN_INTAKE_2,
         SPECIMEN_INTAKE_3,
-        SPECIMEN_INTAKE_4,
         SPECIMEN_OUTTAKE_1,
-        SPECIMEN_OUTTAKE_2,
         CYCLING1,
         CYCLING2,
         CYCLING2_1,

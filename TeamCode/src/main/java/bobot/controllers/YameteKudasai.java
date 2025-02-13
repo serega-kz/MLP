@@ -148,21 +148,12 @@ public class YameteKudasai {
     private void completeSampleIntakeTransition() {
         if (currentState == SAMPLE_INTAKE1 && targetState == SAMPLE_INTAKE2) {
             slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE2.targetPosition);
-            currentState = SAMPLE_INTAKE1_1;
-        } else if (currentState == SAMPLE_INTAKE1_1) {
-            if (transitionTimer.time() <= 250) return;
-
             armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE2.shoulderPosition);
             armSubController.setElbowPosition(ArmState.SAMPLE_INTAKE2.elbowPosition);
-            currentState = SAMPLE_INTAKE1_2;
-        } else if (currentState == SAMPLE_INTAKE1_2) {
-            if (slideSubController.isCooking()) return;
-
-            armSubController.setWristPosition(ArmState.SAMPLE_INTAKE2.wristPosition);
             currentState = SAMPLE_INTAKE2;
         } else if (currentState == SAMPLE_INTAKE2 && targetState == SAMPLE_INTAKE3) {
-            armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE3.shoulderPosition);
             armSubController.setSensorLED(true);
+            armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE3.shoulderPosition);
             currentState = SAMPLE_INTAKE2_1;
         } else if (currentState == SAMPLE_INTAKE2_1) {
             if (transitionTimer.time() <= 200) return;
@@ -182,7 +173,7 @@ public class YameteKudasai {
             SampleColor sampleColor = armSubController.getSampleColor();
             if (sampleColor == YELLOW || sampleColor == allianceColor || isAutonomous) {
                 armSubController.setWristPosition(ArmState.SAMPLE_INTAKE1.wristPosition);
-                wristRotationTimeout = 75 * armSubController.getWristDeviationCount();
+                wristRotationTimeout = 50 * armSubController.getWristDeviationCount();
                 armSubController.setSensorLED(false);
 
                 currentState = SAMPLE_INTAKE3;
@@ -427,8 +418,6 @@ public class YameteKudasai {
         SAMPLE_OUTTAKE,
         SAMPLE_INTAKE_AUTO,
         SAMPLE_OUTTAKE_AUTO,
-        SAMPLE_INTAKE1_1,
-        SAMPLE_INTAKE1_2,
         SAMPLE_INTAKE2_1,
         SAMPLE_INTAKE2_2,
         SAMPLE_INTAKE2_3,

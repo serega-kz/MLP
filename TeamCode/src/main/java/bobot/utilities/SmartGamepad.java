@@ -12,43 +12,57 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 @Config
 public class SmartGamepad extends GamepadEx {
 
-    public static double SLEW_RATE = 0.05;
+    public static double SLEW_RATE = 0.15;
 
-    private final SlewController leftXController, leftYController, rightXController;
     private final ButtonController buttonYController;
+
+    private double previousLeftX = 0, previousLeftY = 0, previousRightX = 0;
 
     public SmartGamepad(Gamepad gamepad) {
         super(gamepad);
-
-        leftXController = new SlewController(SLEW_RATE);
-        leftYController = new SlewController(SLEW_RATE);
-        rightXController = new SlewController(SLEW_RATE);
 
         buttonYController = new ButtonController(this, GamepadKeys.Button.Y);
     }
 
     @Override
     public void readButtons() {
-        leftXController.setSlewRate(SLEW_RATE);
-        leftYController.setSlewRate(SLEW_RATE);
-        rightXController.setSlewRate(SLEW_RATE);
-
         super.readButtons();
+    }
+
+    public double slew(double currentValue, double previousValue) {
+        if (SLEW_RATE < Math.abs(currentValue - previousValue)) {
+            if (currentValue < previousValue) return previousValue - SLEW_RATE;
+            else if (currentValue > previousValue) return previousValue + SLEW_RATE;
+        }
+
+        return currentValue;
     }
 
     @Override
     public double getLeftX() {
-        return leftXController.calculate(super.getLeftX());
+        double currentValue = super.getLeftX();
+        double output = slew(currentValue, previousLeftX);
+
+        previousLeftX = output;
+        return output;
     }
 
     @Override
     public double getLeftY() {
-        return leftYController.calculate(super.getLeftX());
+        double currentValue = super.getLeftY();
+        double output = slew(currentValue, previousLeftY);
+
+        previousLeftY = output;
+        return output;
     }
 
     @Override
     public double getRightX() {
-        return rightXController.calculate(super.getLeftX());
+        double currentValue = super.getRightX();
+        double output = slew(currentValue, previousRightX);
+
+        previousRightX = output;
+        return output;
     }
 
     public ButtonEvent getButtonYEvent() {

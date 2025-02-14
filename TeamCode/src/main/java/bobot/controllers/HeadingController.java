@@ -15,9 +15,9 @@ import bobot.utilities.LerpController;
 @Config
 public class HeadingController {
 
-    public static double LERP_RATE = 1, LERP_TOLERANCE = 0;
-    public static double DEVIATION_COEFFICIENT = 250;
-    public static double KP = 0.040, KD = 0.002;
+    public static double LERP_RATE = 150, LERP_TOLERANCE = 10;
+    public static double DEVIATION_COEFFICIENT = 200;
+    public static double KP = 0.050, KD = 0.004;
 
     private final GoBildaPinpointDriver odo;
 
@@ -74,14 +74,14 @@ public class HeadingController {
         integratedHeading += deltaHeading;
         previousHeading = currentHeading;
 
-        return -headingController.calculate(integratedHeading, lerpController.getEndPosition());
+        return -headingController.calculate(integratedHeading, lerpController.calculate());
     }
 
     public void debug(MultipleTelemetry multipleTelemetry) {
         multipleTelemetry.addLine("----- HEADING headingController -----");
 
         multipleTelemetry.addData("HC: lerp progress", lerpController.getProgress());
-        multipleTelemetry.addData("HC: target heading", lerpController.getEndPosition());
+        multipleTelemetry.addData("HC: target heading", lerpController.calculate());
 
         multipleTelemetry.addData("HC: integrated heading", integratedHeading);
     }

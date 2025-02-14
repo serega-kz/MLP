@@ -14,20 +14,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class ArmSubController {
 
-    public static double WRIST_POSITION_DEVIATION = 0.000;
-
     private final ColorSensor colorSensor;
 
     private final Servo shoulderServo1, shoulderServo2;
     private final Servo elbowServo, wristServo, clawServo;
 
     public ArmSubController(HardwareMap hardwareMap) {
-        colorSensor = hardwareMap.get(ColorSensor.class, "armColor");
+        colorSensor = hardwareMap.get(ColorSensor.class, "armColorSensor");
 
         shoulderServo1 = hardwareMap.get(Servo.class, "shoulderServo1");
         shoulderServo2 = hardwareMap.get(Servo.class, "shoulderServo2");
-        shoulderServo2.setDirection(Servo.Direction.REVERSE);
-
         elbowServo = hardwareMap.get(Servo.class, "elbowServo");
         wristServo = hardwareMap.get(Servo.class, "wristServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
@@ -65,17 +61,12 @@ public class ArmSubController {
         elbowServo.setPosition(position);
     }
 
-    public double getWristDeviationCount() {
-        double wristDeviation = Math.abs(SAMPLE_INTAKE2.wristPosition - wristServo.getPosition());
-        return wristDeviation / WRIST_POSITION_DEVIATION;
-    }
-
     public void deviateWristPosition(double deviation) {
         double currentPosition = wristServo.getPosition();
-
         double targetPosition = currentPosition + deviation;
-        targetPosition = Math.min(targetPosition, SAMPLE_INTAKE2.wristPosition + 2 * WRIST_POSITION_DEVIATION);
-        targetPosition = Math.max(targetPosition, SAMPLE_INTAKE2.wristPosition - 2 * WRIST_POSITION_DEVIATION);
+
+        targetPosition = Math.min(targetPosition, SAMPLE_INTAKE2.wristPosition + 2 * 0.140);
+        targetPosition = Math.max(targetPosition, SAMPLE_INTAKE2.wristPosition - 2 * 0.140);
 
         setWristPosition(targetPosition);
     }
@@ -102,11 +93,11 @@ public class ArmSubController {
     }
 
     public enum ArmState {
-        SAMPLE_INTAKE1(0.000, 0.000, 0.000, 0.000),
-        SAMPLE_INTAKE2(0.000, 0.000, 0.000, 0.000),
-        SAMPLE_INTAKE3(0.000, 0.000, 0.000, 0.000),
-        SAMPLE_OUTTAKE1(0.000, 0.000, 0.000, 0.000),
-        SAMPLE_OUTTAKE2(0.000, 0.000, 0.000, 0.000),
+        SAMPLE_INTAKE1(0.480, 0.540, 0.480, 0.620),
+        SAMPLE_INTAKE2(0.500, 0.880, 0.480, 0.620),
+        SAMPLE_INTAKE3(0.580, 0.870, 0.000, 0.475),
+        SAMPLE_OUTTAKE1(0.480, 0.540, 0.480, 0.475),
+        SAMPLE_OUTTAKE2(0.420, 0.380, 0.200, 0.620),
         SAMPLE_INTAKE_AUTO(0.000, 0.000, 0.000, 0.000),
         SPECIMEN_INTAKE1(0.000, 0.000, 0.000, 0.000),
         SPECIMEN_INTAKE2(0.000, 0.000, 0.000, 0.000),

@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.controller.PDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
@@ -18,9 +19,9 @@ import bobot.utilities.LerpController;
 @Config
 public class SlideSubController {
 
-    public static double LERP_RATE = 1, LERP_TOLERANCE = 0;
+    public static double LERP_RATE = 1800, LERP_TOLERANCE = 200;
     public static double DEVIATION_COEFFICIENT = 2500;
-    public static double KP = 0.0150, KD = 0.0003;
+    public static double KP = 0.0120, KD = 0.0004;
 
     private final Motor motor1, motor2;
 
@@ -28,7 +29,7 @@ public class SlideSubController {
     private final PDController PDController1;
     private final PDController PDController2;
 
-    private double scoringPosition = 0;
+    private double scoringPosition = SAMPLE_OUTTAKE_HIGH.targetPosition;
 
     public SlideSubController(HardwareMap hardwareMap) {
         motor1 = new Motor(hardwareMap, "slideMotor1");
@@ -48,7 +49,10 @@ public class SlideSubController {
 
     public void deviateTargetPosition(double deviation, double dt) {
         double targetPosition = lerpController.getEndPosition();
-        lerpController.setEndPosition(targetPosition + DEVIATION_COEFFICIENT * deviation * dt);
+        double endPosition = targetPosition + DEVIATION_COEFFICIENT * deviation * dt;
+        endPosition = Range.clip(endPosition, 0, SAMPLE_OUTTAKE_HIGH.targetPosition);
+
+        lerpController.setEndPosition(endPosition);
     }
 
     public void setTargetPosition(double targetPosition) {
@@ -71,6 +75,7 @@ public class SlideSubController {
     public void update() {
         PDController1.setPID(KP, 0, KD);
         PDController2.setPID(KP, 0, KD);
+        lerpController.setRateAndTolerance(LERP_RATE, LERP_TOLERANCE);
 
         int motor1Position = motor1.getCurrentPosition();
         int motor2Position = motor2.getCurrentPosition();
@@ -87,17 +92,17 @@ public class SlideSubController {
         multipleTelemetry.addLine("----- SLIDE CONTROLLER -----");
 
         multipleTelemetry.addData("SC: lerp progress", lerpController.getProgress());
-        multipleTelemetry.addData("SC: target position", lerpController.getEndPosition());
+        multipleTelemetry.addData("SC: target position", lerpController.calculate());
 
         multipleTelemetry.addData("SC: motor 1 position", motor1.getCurrentPosition());
         multipleTelemetry.addData("SC: motor 2 position", motor2.getCurrentPosition());
 
-        multipleTelemetry.addData("PC: motor 1 current", ((DcMotorEx) motor1.motor).getCurrent(CurrentUnit.MILLIAMPS));
-        multipleTelemetry.addData("PC: motor 2 current", ((DcMotorEx) motor2.motor).getCurrent(CurrentUnit.MILLIAMPS));
+        multipleTelemetry.addData("SC: motor 1 current", ((DcMotorEx) motor1.motor).getCurrent(CurrentUnit.MILLIAMPS));
+        multipleTelemetry.addData("SC: motor 2 current", ((DcMotorEx) motor2.motor).getCurrent(CurrentUnit.MILLIAMPS));
     }
 
     public enum SlideState {
-        SAMPLE_INTAKE1(0), SAMPLE_INTAKE2(1400), SAMPLE_OUTTAKE(0), SAMPLE_OUTTAKE_LOW(1000), SAMPLE_OUTTAKE_HIGH(2850),
+        SAMPLE_INTAKE1(0), SAMPLE_INTAKE2(1600), SAMPLE_OUTTAKE(0), SAMPLE_OUTTAKE_LOW(750), SAMPLE_OUTTAKE_HIGH(2100),
         CYCLING1(800), CYCLING2(2000),
         SPECIMEN_INTAKE(0), SPECIMEN_OUTTAKE(1400),
         ASCENT1(2200), ASCENT1_1(200), ASCENT2(600);

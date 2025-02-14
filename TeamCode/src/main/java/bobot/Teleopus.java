@@ -28,7 +28,7 @@ public class Teleopus extends LinearOpMode {
     protected Alliance alliance;
 
     private double scaleInput(double input, boolean downscale) {
-        double coefficient = downscale ? 0.4 : 1;
+        double coefficient = downscale ? 0.45 : 1;
         return coefficient * Math.abs(input) * input;
     }
 
@@ -44,8 +44,11 @@ public class Teleopus extends LinearOpMode {
         Motor BLMotor = new Motor(hardwareMap, "BLMotor");
         Motor BRMotor = new Motor(hardwareMap, "BRMotor");
 
+        FLMotor.setInverted(true);
+        BLMotor.setInverted(true);
+
         HeadingController headingController = new HeadingController(hardwareMap);
-        MecanumDrive mecanumDrive = new MecanumDrive(FLMotor, FRMotor, BLMotor, BRMotor);
+        MecanumDrive mecanumDrive = new MecanumDrive(false, FLMotor, FRMotor, BLMotor, BRMotor);
 
         ScoringMode scoringMode = ScoringMode.SAMPLE;
         YameteKudasai やめてください = new YameteKudasai(hardwareMap, alliance, OpMode.TELEOPUS);

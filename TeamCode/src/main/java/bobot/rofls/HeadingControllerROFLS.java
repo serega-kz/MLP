@@ -35,7 +35,10 @@ public class HeadingControllerROFLS extends LinearOpMode {
         Motor BLMotor = new Motor(hardwareMap, "BLMotor");
         Motor BRMotor = new Motor(hardwareMap, "BRMotor");
 
-        MecanumDrive drive = new MecanumDrive(FLMotor, FRMotor, BRMotor, BLMotor);
+        FLMotor.setInverted(true);
+        BLMotor.setInverted(true);
+
+        MecanumDrive drive = new MecanumDrive(false, FLMotor, FRMotor, BLMotor, BRMotor);
 
         VoltageSensor voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 

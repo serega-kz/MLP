@@ -17,7 +17,7 @@ import bobot.utilities.LerpController;
 @Config
 public class PivotSubController {
 
-    public static double LERP_RATE = 2000, LERP_TOLERANCE = 0;
+    public static double LERP_RATE = 1600, LERP_TOLERANCE = 200;
     public static double KP = 0.0080, KD = 0.0002;
 
     private final DigitalChannel touch1, touch2;
@@ -58,8 +58,11 @@ public class PivotSubController {
         PDController2.setPID(KP, 0, KD);
         lerpController.setRateAndTolerance(LERP_RATE, LERP_TOLERANCE);
 
-        if (!touch1.getState()) motor1.resetEncoder();
-        if (!touch2.getState()) motor2.resetEncoder();
+        if (!touch1.getState() || !touch2.getState()) {
+            motor1.resetEncoder();
+            motor2.resetEncoder();
+            setTargetPosition(0);
+        }
 
         int motor1Position = motor1.getCurrentPosition();
         int motor2Position = motor2.getCurrentPosition();
@@ -79,7 +82,7 @@ public class PivotSubController {
         multipleTelemetry.addLine("PC: button 2 is " + (touch2.getState() ? "not " : "") + "pressed");
 
         multipleTelemetry.addData("PC: lerp progress", lerpController.getProgress());
-        multipleTelemetry.addData("PC: target position", lerpController.getEndPosition());
+        multipleTelemetry.addData("PC: target position", lerpController.calculate());
 
         multipleTelemetry.addData("PC: motor 1 position", motor1.getCurrentPosition());
         multipleTelemetry.addData("PC: motor 2 position", motor2.getCurrentPosition());
@@ -89,7 +92,7 @@ public class PivotSubController {
     }
 
     public enum PivotState {
-        SAMPLE_INTAKE(0), SAMPLE_OUTTAKE(-2800), SPECIMEN(-2400), ASCENT1(-1650), ASCENT2(-2400);
+        SAMPLE_INTAKE(-100), SAMPLE_OUTTAKE(1030), SPECIMEN(830), ASCENT1(0), ASCENT2(0);
 
         public final int targetPosition;
 

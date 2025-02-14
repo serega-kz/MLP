@@ -20,6 +20,7 @@ public class ResetOpMode extends LinearOpMode {
     @Override
     public void runOpMode() {
         ArmSubController armSubController = new ArmSubController(hardwareMap);
+        armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
 
         Motor pivotMotor1 = new Motor(hardwareMap, "pivotMotor1");
         Motor pivotMotor2 = new Motor(hardwareMap, "pivotMotor2");
@@ -35,12 +36,8 @@ public class ResetOpMode extends LinearOpMode {
 
         transitionTime.reset();
         while (opModeIsActive()) {
-            armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
-
-            while (transitionTime.time() <= 500) {}
-
-            slideMotor1.set(-0.80);
-            slideMotor2.set(-0.80);
+            slideMotor1.set(-0.60);
+            slideMotor2.set(-0.60);
 
             double slideMotor1Current = 0;
             double slideMotor2Current = 0;
@@ -52,8 +49,8 @@ public class ResetOpMode extends LinearOpMode {
             slideMotor1.set(0.00);
             slideMotor2.set(0.00);
 
-            pivotMotor1.set(0.80);
-            pivotMotor2.set(0.80);
+            pivotMotor1.set(-0.60);
+            pivotMotor2.set(-0.60);
 
             double pivotMotor1Current = 0;
             double pivotMotor2Current = 0;
@@ -72,13 +69,7 @@ public class ResetOpMode extends LinearOpMode {
             else if (opMode == OpMode.AUTONOMOUS_SPECIMEN) armSubController.setTargetState(ArmState.SPECIMEN_OUTTAKE);
             else if (opMode == OpMode.TELEOPUS) armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
 
-            transitionTime.reset();
-            while (pivotSubController.isCooking()) pivotSubController.update();
-
-            slideMotor1.stopAndResetEncoder();
-            slideMotor2.stopAndResetEncoder();
-
-            requestOpModeStop();
+            while (!isStopRequested()) {}
         }
     }
 }

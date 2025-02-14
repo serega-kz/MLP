@@ -117,7 +117,7 @@ public class AutonomousSpecimen extends OpMode {
             if (isFollowerCooking()) return;
 
             if (やめてください.getCurrentState() == State.SPECIMEN_INTAKE) やめてください.proceedTransition();
-            if (やめてください.getCurrentState() == State.SPECIMEN_INTAKE_4) setPathState(PathState.values()[pathState.ordinal() + 1]);
+            if (やめてください.getCurrentState() == State.SPECIMEN_OUTTAKE) setPathState(PathState.values()[pathState.ordinal() + 1]);
         } else if (pathState == SCORE_SPECIMEN1 || pathState == SCORE_SPECIMEN2 || pathState == SCORE_SPECIMEN3 || pathState == SCORE_SPECIMEN4) {
             if (isFollowerCooking()) return;
 

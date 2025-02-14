@@ -19,10 +19,10 @@ import bobot.controllers.ArmSubController;
 @TeleOp(group = "!1ROFLS")
 public class ArmSubControllerROFLS extends LinearOpMode {
 
-    public static double shoulderTargetPosition = 0;
-    public static double elbowTargetPosition = 0;
-    public static double wristTargetPosition = 0;
-    public static double clawTargetPosition = 0;
+    public static double shoulderTargetPosition = 0.480;
+    public static double elbowTargetPosition = 0.540;
+    public static double wristTargetPosition = 0.480;
+    public static double clawTargetPosition = 0.620;
 
     @Override
     public void runOpMode() {
@@ -57,6 +57,8 @@ public class ArmSubControllerROFLS extends LinearOpMode {
             armSubController.setElbowPosition(elbowTargetPosition);
             armSubController.setWristPosition(wristTargetPosition);
             armSubController.setClawPosition(clawTargetPosition);
+
+            armSubController.debug(multipleTelemetry);
 
             double frequency = 1 / period;
             double voltage = voltageSensor.getVoltage();

@@ -45,6 +45,10 @@ public class SmartGamepadROFLS extends LinearOpMode {
             else if (buttonYEvent == ButtonEvent.SINGLE_CLICK) multipleTelemetry.addLine("Single click");
             else if (buttonYEvent == ButtonEvent.DOUBLE_CLICK) multipleTelemetry.addLine("Double click");
 
+            dashboardTelemetry.addData("Left X", driverOp.getLeftX());
+            dashboardTelemetry.addData("Left Y", driverOp.getLeftY());
+            dashboardTelemetry.addData("Right X", driverOp.getRightX());
+
             multipleTelemetry.update();
         }
     }

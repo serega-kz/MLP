@@ -12,6 +12,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -60,6 +61,9 @@ public class Teleopus extends LinearOpMode {
         multipleTelemetry.setMsTransmissionInterval(50);
 
         waitForStart();
+
+        hardwareMap.get(LED.class, "LED1").on();
+        hardwareMap.get(LED.class, "LED2").on();
 
         double lastTimeStamp = 0;
         while (opModeIsActive()) {

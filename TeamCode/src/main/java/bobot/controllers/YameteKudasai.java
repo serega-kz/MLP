@@ -244,12 +244,12 @@ public class YameteKudasai {
             armSubController.setClawPosition(ArmState.SAMPLE_OUTTAKE2.clawPosition);
             currentState = SAMPLE_OUTTAKE_AUTO_1;
         } else if (currentState == SAMPLE_OUTTAKE_AUTO_1) {
-            if (transitionTimer.time() <= 100) return;
+            if (transitionTimer.time() <= 350) return;
 
             armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
             currentState = SAMPLE_OUTTAKE_AUTO_2;
         } else if (currentState == SAMPLE_OUTTAKE_AUTO_2) {
-            if (transitionTimer.time() <= 300) return;
+            if (transitionTimer.time() <= 500) return;
 
             slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
             currentState = SAMPLE_OUTTAKE_AUTO_3;

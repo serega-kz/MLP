@@ -60,10 +60,10 @@ public class Teleopus extends LinearOpMode {
         multipleTelemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         multipleTelemetry.setMsTransmissionInterval(50);
 
-        waitForStart();
-
         hardwareMap.get(LED.class, "LED1").on();
         hardwareMap.get(LED.class, "LED2").on();
+
+        waitForStart();
 
         double lastTimeStamp = 0;
         while (opModeIsActive()) {

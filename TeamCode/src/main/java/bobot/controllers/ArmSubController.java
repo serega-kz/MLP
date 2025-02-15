@@ -95,7 +95,7 @@ public class ArmSubController {
     public enum ArmState {
         SAMPLE_INTAKE1(0.480, 0.540, 0.480, 0.620),
         SAMPLE_INTAKE2(0.500, 0.880, 0.480, 0.620),
-        SAMPLE_INTAKE3(0.580, 0.870, 0.000, 0.475),
+        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.475),
         SAMPLE_OUTTAKE1(0.480, 0.540, 0.480, 0.475),
         SAMPLE_OUTTAKE2(0.420, 0.380, 0.200, 0.620),
         SAMPLE_INTAKE_AUTO(0.000, 0.000, 0.000, 0.000),

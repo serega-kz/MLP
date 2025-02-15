@@ -23,7 +23,8 @@ public class LerpController {
 
     public void reset() {
         startPosition = 0;
-        setEndPosition(0);
+        endPosition = 0;
+        duration = 0;
     }
 
     public double getProgress() {
@@ -42,7 +43,7 @@ public class LerpController {
     }
 
     public void setEndPosition(double endPosition) {
-        if (getProgress() < 1) return;
+        if (1 - getProgress() > 0) return;
 
         this.startPosition = this.endPosition;
         this.endPosition = endPosition;

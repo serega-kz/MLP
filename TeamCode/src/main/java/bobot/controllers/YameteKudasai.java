@@ -211,10 +211,19 @@ public class YameteKudasai {
         if (currentState == SAMPLE_INTAKE3) {
             if (slideSubController.isCooking()) return;
 
-            armSubController.setShoulderPosition(ArmState.SAMPLE_OUTTAKE2.shoulderPosition);
-            armSubController.setElbowPosition(ArmState.SAMPLE_OUTTAKE2.elbowPosition);
-            pivotSubController.setTargetPosition(PivotState.SAMPLE_OUTTAKE.targetPosition);
-            currentState = SAMPLE_INTAKE3_1;
+            SampleColor sampleColor = armSubController.getSampleColor();
+            if (sampleColor == YELLOW || sampleColor == allianceColor || isAutonomous) {
+                armSubController.setShoulderPosition(ArmState.SAMPLE_OUTTAKE2.shoulderPosition);
+                armSubController.setElbowPosition(ArmState.SAMPLE_OUTTAKE2.elbowPosition);
+                pivotSubController.setTargetPosition(PivotState.SAMPLE_OUTTAKE.targetPosition);
+                currentState = SAMPLE_INTAKE3_1;
+            } else {
+                armSubController.setTargetState(ArmState.SAMPLE_INTAKE2);
+                slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE2.targetPosition);
+
+                currentState = SAMPLE_INTAKE2;
+                targetState = SAMPLE_INTAKE2;
+            }
         } else if (currentState == SAMPLE_INTAKE3_1) {
              if (pivotSubController.isCooking()) return;
 

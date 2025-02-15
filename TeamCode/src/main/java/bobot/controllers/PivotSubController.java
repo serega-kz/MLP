@@ -17,8 +17,8 @@ import bobot.utilities.LerpController;
 @Config
 public class PivotSubController {
 
-    public static double LERP_RATE = 1600, LERP_TOLERANCE = 200;
-    public static double KP = 0.0080, KD = 0.0002;
+    public static double LERP_RATE = 1400, LERP_TOLERANCE = 200;
+    public static double KP = 0.0050, KD = 0.0005;
 
     private final DigitalChannel touch1, touch2;
 
@@ -59,9 +59,11 @@ public class PivotSubController {
         lerpController.setRateAndTolerance(LERP_RATE, LERP_TOLERANCE);
 
         if (!touch1.getState() || !touch2.getState()) {
-            motor1.resetEncoder();
-            motor2.resetEncoder();
-            setTargetPosition(0);
+            if (lerpController.getEndPosition() == -100) {
+                motor1.resetEncoder();
+                motor2.resetEncoder();
+                lerpController.reset();
+            }
         }
 
         int motor1Position = motor1.getCurrentPosition();

@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 @Config
 public class SmartGamepad extends GamepadEx {
 
-    public static double SLEW_RATE = 0.15;
+    public static double SLEW_RATE = 0.10;
 
     private final ButtonController buttonYController;
 

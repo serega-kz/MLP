@@ -1,7 +1,5 @@
 package bobot.controllers;
 
-import static bobot.controllers.ArmSubController.ArmState.*;
-
 import android.graphics.Color;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -43,11 +41,11 @@ public class ArmSubController {
     public SampleColor getSampleColor() {
         float[] hsvValues = getColorSensorHSV();
 
-        if (hsvValues[2] < 50) return SampleColor.NONE;
+        if (hsvValues[2] < 100) return SampleColor.NONE;
 
-        if (hsvValues[0] > 20 && hsvValues[0] < 40) return SampleColor.RED;
-        if (hsvValues[0] > 60 && hsvValues[0] < 120) return SampleColor.YELLOW;
-        if (hsvValues[0] > 200 && hsvValues[0] < 240) return SampleColor.BLUE;
+        if (Math.abs(hsvValues[0] - 17.3) <= 20) return SampleColor.RED; // 17.3 0.611 186
+        if (Math.abs(hsvValues[0] - 80.9) <= 20) return SampleColor.YELLOW; // 80.9 0.733 396
+        if (Math.abs(hsvValues[0] - 223) <= 20) return SampleColor.BLUE; // 223 0.820 203
 
         return SampleColor.NONE;
     }
@@ -65,8 +63,8 @@ public class ArmSubController {
         double currentPosition = wristServo.getPosition();
         double targetPosition = currentPosition + deviation;
 
-        targetPosition = Math.min(targetPosition, SAMPLE_INTAKE2.wristPosition + 2 * 0.140);
-        targetPosition = Math.max(targetPosition, SAMPLE_INTAKE2.wristPosition - 2 * 0.140);
+        if (targetPosition < 0.140) targetPosition = 0.620;
+        if (targetPosition > 0.820) targetPosition = 0.340;
 
         setWristPosition(targetPosition);
     }
@@ -89,19 +87,23 @@ public class ArmSubController {
     public void debug(MultipleTelemetry multipleTelemetry) {
         multipleTelemetry.addLine("----- ARM CONTROLLER -----");
 
+        float[] hsvValues = getColorSensorHSV();
         multipleTelemetry.addData("AC: sample color", getSampleColor());
+        multipleTelemetry.addData("AC: H", hsvValues[0]);
+        multipleTelemetry.addData("AC: S", hsvValues[1]);
+        multipleTelemetry.addData("AC: V", hsvValues[2]);
     }
 
     public enum ArmState {
-        SAMPLE_INTAKE1(0.480, 0.540, 0.480, 0.620),
-        SAMPLE_INTAKE2(0.500, 0.880, 0.480, 0.620),
-        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.475),
-        SAMPLE_OUTTAKE1(0.480, 0.540, 0.480, 0.475),
-        SAMPLE_OUTTAKE2(0.420, 0.380, 0.200, 0.620),
+        SAMPLE_INTAKE1(0.480, 0.540, 0.480, 0.315),
+        SAMPLE_INTAKE2(0.500, 0.880, 0.480, 0.315),
+        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.170),
+        SAMPLE_OUTTAKE1(0.480, 0.540, 0.480, 0.170),
+        SAMPLE_OUTTAKE2(0.480, 0.320, 0.900, 0.315),
         SAMPLE_INTAKE_AUTO(0.000, 0.000, 0.000, 0.000),
-        SPECIMEN_INTAKE1(0.000, 0.000, 0.000, 0.000),
-        SPECIMEN_INTAKE2(0.000, 0.000, 0.000, 0.000),
-        SPECIMEN_OUTTAKE(0.000, 0.000, 0.000, 0.000),
+        SPECIMEN_INTAKE1(0.080, 0.720, 0.480, 0.315),
+        SPECIMEN_INTAKE2(0.080, 0.720, 0.480, 0.170),
+        SPECIMEN_OUTTAKE(0.820, 0.160, 0.980, 0.170),
         ASCENT(0.000, 0.000, 0.000, 0.000);
 
         public final double shoulderPosition;

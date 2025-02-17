@@ -40,7 +40,7 @@ public class YameteKudasai {
             scoringMode = SAMPLE;
             isAutonomous = true;
         } else if (opMode == AUTONOMOUS_SPECIMEN) {
-            armSubController.setTargetState(ArmState.SPECIMEN_OUTTAKE);
+            armSubController.setTargetState(ArmState.SPECIMEN_INTAKE2);
             targetState = AUTONOMOUS_SPECIMEN_START;
             scoringMode = SPECIMEN;
             isAutonomous = true;
@@ -51,7 +51,7 @@ public class YameteKudasai {
     }
 
     public void rotateWrist(Direction direction) {
-        if (currentState != SAMPLE_INTAKE2) return;
+        if (currentState != SAMPLE_INTAKE2 && currentState != SAMPLE_OUTTAKE) return;
 
         double deviation = direction == Direction.CLOCKWISE ? -0.140 : 0.140;
         armSubController.deviateWristPosition(deviation);
@@ -117,28 +117,37 @@ public class YameteKudasai {
 
         if (scoringMode == ASCENT && scoringModeJustChanged) {
             currentState = TRANSITION_TO_ASCENT;
+            targetState = ASCENT1;
         } else if (scoringMode == ASCENT) targetState = ASCENT2;
     }
 
     private void completeOpModeTransition() {
         if (targetState == AUTONOMOUS_SAMPLE_START) {
             pivotSubController.setTargetPosition(PivotState.SAMPLE_OUTTAKE.targetPosition);
+            targetState = AUTONOMOUS_SAMPLE_START_1;
+        } else if (targetState == AUTONOMOUS_SAMPLE_START_1) {
+            if (pivotSubController.isCooking()) return;
+
             slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE_HIGH.targetPosition);
             currentState = SAMPLE_OUTTAKE;
             targetState = SAMPLE_OUTTAKE;
         } else if (targetState == AUTONOMOUS_SPECIMEN_START) {
             pivotSubController.setTargetPosition(PivotState.SPECIMEN.targetPosition);
+            targetState = AUTONOMOUS_SPECIMEN_START_1;
+        } else if (targetState == AUTONOMOUS_SPECIMEN_START_1) {
+            armSubController.setTargetState(ArmState.SPECIMEN_OUTTAKE);
             slideSubController.setTargetPosition(SlideState.SPECIMEN_OUTTAKE.targetPosition);
             currentState = SPECIMEN_OUTTAKE;
             targetState = SPECIMEN_OUTTAKE;
         } else if (targetState == TELEOPUS_START) {
+            transitionTimer.reset();
             armSubController.setTargetState(ArmState.SAMPLE_INTAKE1);
-            slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
             targetState = TELEOPUS_START_1;
         } else if (targetState == TELEOPUS_START_1) {
-            if (slideSubController.isCooking()) return;
+            if (transitionTimer.time() <= 750) return;
 
             pivotSubController.setTargetPosition(PivotState.SAMPLE_INTAKE.targetPosition);
+            slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
             currentState = SAMPLE_INTAKE1;
             targetState = SAMPLE_INTAKE1;
         }
@@ -155,32 +164,33 @@ public class YameteKudasai {
             armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE3.shoulderPosition);
             currentState = SAMPLE_INTAKE2_1;
         } else if (currentState == SAMPLE_INTAKE2_1) {
-            if (transitionTimer.time() <= 150) return;
+            if (transitionTimer.time() <= 200) return;
             transitionTimer.reset();
 
             armSubController.setClawPosition(ArmState.SAMPLE_INTAKE3.clawPosition);
             currentState = SAMPLE_INTAKE2_2;
         } else if (currentState == SAMPLE_INTAKE2_2) {
-            if (transitionTimer.time() <= 200) return;
+            if (transitionTimer.time() <= 250) return;
 
             armSubController.setShoulderPosition(ArmState.SAMPLE_INTAKE2.shoulderPosition);
             currentState = SAMPLE_INTAKE2_3;
         } else if (currentState == SAMPLE_INTAKE2_3) {
-            if (transitionTimer.time() <= 350) return;
+            if (transitionTimer.time() <= 450) return;
             transitionTimer.reset();
 
             SampleColor sampleColor = armSubController.getSampleColor();
             if (sampleColor == YELLOW || sampleColor == allianceColor || isAutonomous) {
                 armSubController.setSensorLED(false);
                 armSubController.setTargetState(ArmState.SAMPLE_OUTTAKE1);
-                slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE.targetPosition);
 
-                if (scoringMode == SAMPLE || sampleColor == YELLOW) {
+                if (scoringMode == CYCLING) {
+                    slideSubController.setTargetPosition(SlideState.CYCLING1.targetPosition);
+                    currentState = CYCLING0;
+                    targetState = CYCLING1;
+                } else if (scoringMode == SAMPLE) {
+                    slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE.targetPosition);
                     currentState = SAMPLE_INTAKE3;
                     targetState = SAMPLE_OUTTAKE;
-                } else if (scoringMode == CYCLING) {
-                    currentState = CYCLING1;
-                    targetState = CYCLING1;
                 }
             } else {
                 armSubController.setClawPosition(ArmState.SAMPLE_INTAKE2.clawPosition);
@@ -272,42 +282,42 @@ public class YameteKudasai {
 
     private void completeSpecimenTransition() {
         if (currentState == SPECIMEN_INTAKE && targetState == SPECIMEN_OUTTAKE) {
-            armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE2.shoulderPosition);
+            armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE2.clawPosition);
             currentState = SPECIMEN_INTAKE_1;
         } else if (currentState == SPECIMEN_INTAKE_1) {
-            if (transitionTimer.time() <= 200) return;
+            if (transitionTimer.time() <= 50) return;
 
-            armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE2.clawPosition);
-            currentState = SPECIMEN_INTAKE_3;
+            armSubController.setSensorLED(true);
+            slideSubController.setTargetPosition(SlideState.SPECIMEN_OUTTAKE.targetPosition);
+            currentState = SPECIMEN_INTAKE_2;
         } else if (currentState == SPECIMEN_INTAKE_2) {
-            if (transitionTimer.time() <= 300) return;
-
-            armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
-            currentState = SPECIMEN_INTAKE_3;
-        } else if (currentState == SPECIMEN_INTAKE_3) {
-            if (transitionTimer.time() <= 500) return;
+            if (slideSubController.isCooking()) return;
+            transitionTimer.reset();
 
             SampleColor sampleColor = armSubController.getSampleColor();
-            if (sampleColor != NONE) {
+            if (sampleColor != NONE || isAutonomous) {
                 armSubController.setSensorLED(false);
                 armSubController.setShoulderPosition(ArmState.SPECIMEN_OUTTAKE.shoulderPosition);
                 armSubController.setElbowPosition(ArmState.SPECIMEN_OUTTAKE.elbowPosition);
-                slideSubController.setTargetPosition(SlideState.SPECIMEN_OUTTAKE.targetPosition);
-                currentState = SPECIMEN_OUTTAKE;
+                currentState = SPECIMEN_INTAKE_3;
             } else {
                 armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
+                slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE.targetPosition);
                 currentState = SPECIMEN_INTAKE;
                 targetState = SPECIMEN_INTAKE;
             }
+        } else if (currentState == SPECIMEN_INTAKE_3) {
+            if (transitionTimer.time() <= 250) return;
+
+            armSubController.setWristPosition(ArmState.SPECIMEN_OUTTAKE.wristPosition);
+            currentState = SPECIMEN_OUTTAKE;
         } else if (currentState == SPECIMEN_OUTTAKE && targetState == SPECIMEN_INTAKE) {
             armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
             currentState = SPECIMEN_OUTTAKE_1;
         } else if (currentState == SPECIMEN_OUTTAKE_1) {
-            if (transitionTimer.time() <= 100) return;
+            if (transitionTimer.time() <= 750) return;
 
-            armSubController.setSensorLED(true);
-            armSubController.setShoulderPosition(ArmState.SPECIMEN_INTAKE1.shoulderPosition);
-            armSubController.setElbowPosition(ArmState.SPECIMEN_INTAKE1.elbowPosition);
+            armSubController.setTargetState(ArmState.SPECIMEN_INTAKE1);
             slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE.targetPosition);
             currentState = SPECIMEN_INTAKE;
         }
@@ -316,7 +326,20 @@ public class YameteKudasai {
     private void completeCyclingTransition() {
         completeSampleIntakeTransition();
 
-        if (currentState == CYCLING1 && targetState == CYCLING2) {
+        if (currentState == CYCLING0) {
+            if (slideSubController.isCooking()) return;
+
+            SampleColor sampleColor = armSubController.getSampleColor();
+            if (sampleColor == NONE) {
+                armSubController.setTargetState(ArmState.SAMPLE_INTAKE2);
+                slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE2.targetPosition);
+                currentState = SAMPLE_INTAKE2;
+                targetState = SAMPLE_INTAKE2;
+            } else {
+                currentState = CYCLING1;
+                targetState = CYCLING1;
+            }
+        } else if (currentState == CYCLING1 && targetState == CYCLING2) {
             slideSubController.setTargetPosition(SlideState.CYCLING2.targetPosition);
             currentState = CYCLING2;
         } else if (currentState == CYCLING2 && targetState == SAMPLE_INTAKE1) {
@@ -325,7 +348,7 @@ public class YameteKudasai {
         } else if (currentState == CYCLING2_1) {
             if (transitionTimer.time() <= 100) return;
 
-            slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
+            slideSubController.setTargetPosition(SlideState.CYCLING1.targetPosition);
             currentState = SAMPLE_INTAKE1;
         }
     }
@@ -364,7 +387,7 @@ public class YameteKudasai {
             pivotSubController.setTargetPosition(PivotState.SPECIMEN.targetPosition);
             currentState = SPECIMEN_INTAKE;
         } else if (currentState == TRANSITION_TO_ASCENT) {
-            slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
+            slideSubController.setTargetPosition(SlideState.ZERO.targetPosition);
             currentState = TRANSITION_TO_ASCENT_1;
         } else if (currentState == TRANSITION_TO_ASCENT_1) {
             if (slideSubController.isCooking()) return;
@@ -386,12 +409,12 @@ public class YameteKudasai {
 
         if (currentState == targetState) return;
 
-        if (targetState.ordinal() <= 3) completeOpModeTransition();
+        completeStateTransition();
+        if (targetState.ordinal() <= 5) completeOpModeTransition();
         else if (scoringMode == SAMPLE) completeSampleTransition();
         else if (scoringMode == SPECIMEN) completeSpecimenTransition();
         else if (scoringMode == CYCLING) completeCyclingTransition();
         else if (scoringMode == ASCENT) completeAscentTransition();
-        else completeStateTransition();
     }
 
     public State getCurrentState() {
@@ -408,7 +431,9 @@ public class YameteKudasai {
 
     public enum State {
         AUTONOMOUS_SAMPLE_START,
+        AUTONOMOUS_SAMPLE_START_1,
         AUTONOMOUS_SPECIMEN_START,
+        AUTONOMOUS_SPECIMEN_START_1,
         TELEOPUS_START,
         TELEOPUS_START_1,
         SAMPLE_INTAKE1,
@@ -436,6 +461,7 @@ public class YameteKudasai {
         SPECIMEN_INTAKE_2,
         SPECIMEN_INTAKE_3,
         SPECIMEN_OUTTAKE_1,
+        CYCLING0,
         CYCLING1,
         CYCLING2,
         CYCLING2_1,

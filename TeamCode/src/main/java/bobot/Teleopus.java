@@ -28,7 +28,7 @@ public class Teleopus extends LinearOpMode {
     protected Alliance alliance;
 
     private double scaleInput(double input, boolean downscale) {
-        double coefficient = downscale ? 0.45 : 1;
+        double coefficient = downscale ? 0.40 : 1;
         return coefficient * Math.abs(input) * input;
     }
 
@@ -40,12 +40,18 @@ public class Teleopus extends LinearOpMode {
         SmartGamepad driverOp = new SmartGamepad(gamepad1);
 
         Motor FLMotor = new Motor(hardwareMap, "FLMotor");
-        Motor FRMotor = new Motor(hardwareMap, "FRMotor");
-        Motor BLMotor = new Motor(hardwareMap, "BLMotor");
-        Motor BRMotor = new Motor(hardwareMap, "BRMotor");
-
+        FLMotor.setRunMode(Motor.RunMode.VelocityControl);
         FLMotor.setInverted(true);
+
+        Motor FRMotor = new Motor(hardwareMap, "FRMotor");
+        FRMotor.setRunMode(Motor.RunMode.VelocityControl);
+
+        Motor BLMotor = new Motor(hardwareMap, "BLMotor");
+        BLMotor.setRunMode(Motor.RunMode.VelocityControl);
         BLMotor.setInverted(true);
+
+        Motor BRMotor = new Motor(hardwareMap, "BRMotor");
+        BRMotor.setRunMode(Motor.RunMode.VelocityControl);
 
         HeadingController headingController = new HeadingController(hardwareMap);
         MecanumDrive mecanumDrive = new MecanumDrive(false, FLMotor, FRMotor, BLMotor, BRMotor);
@@ -84,7 +90,7 @@ public class Teleopus extends LinearOpMode {
             else if (driverOp.wasJustPressed(Button.X)) headingController.snapTargetHeading(HeadingController.Direction.CLOCKWISE);
             else if (driverOp.wasJustPressed(Button.B)) headingController.snapTargetHeading(HeadingController.Direction.ANTICLOCKWISE);
 
-            boolean downscale = driverOp.getButton(Button.RIGHT_BUMPER) || やめてください.getCurrentState() == State.SAMPLE_INTAKE2;
+            boolean downscale = driverOp.getButton(Button.RIGHT_BUMPER) ^ やめてください.getCurrentState() == State.SAMPLE_INTAKE2;
 
             double turnSpeed = scaleInput(driverOp.getRightX(), downscale);
             headingController.deviateTargetHeading(turnSpeed, period);
@@ -95,13 +101,14 @@ public class Teleopus extends LinearOpMode {
 
             mecanumDrive.driveRobotCentric(strafePower, forwardPower, turnPower);
 
-            if (driverOp.getButtonYEvent() == ButtonEvent.HOLDING) {
+            ButtonEvent buttonYEvent = driverOp.getButtonYEvent();
+            if (buttonYEvent == ButtonEvent.HOLDING) {
                 scoringMode = ScoringMode.ASCENT;
                 やめてください.setScoringMode(scoringMode);
-            } else if (driverOp.getButtonYEvent() == ButtonEvent.SINGLE_CLICK) {
+            } else if (buttonYEvent == ButtonEvent.SINGLE_CLICK) {
                 scoringMode = scoringMode == ScoringMode.SPECIMEN ? ScoringMode.SAMPLE : ScoringMode.SPECIMEN;
                 やめてください.setScoringMode(scoringMode);
-            } else if (driverOp.getButtonYEvent() == ButtonEvent.DOUBLE_CLICK) {
+            } else if (buttonYEvent == ButtonEvent.DOUBLE_CLICK) {
                 scoringMode = ScoringMode.CYCLING;
                 やめてください.setScoringMode(scoringMode);
             }
@@ -118,6 +125,7 @@ public class Teleopus extends LinearOpMode {
             else if (driverOp.wasJustPressed(Button.DPAD_RIGHT)) やめてください.rotateWrist(Direction.CLOCKWISE);
 
             やめてください.update();
+            multipleTelemetry.addData("scoring mode", scoringMode);
             multipleTelemetry.addData("current state", やめてください.getCurrentState());
 
             double frequency = 1 / period;

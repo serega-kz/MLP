@@ -21,7 +21,7 @@ public class SlideSubController {
 
     public static double LERP_RATE = 1800, LERP_TOLERANCE = 200;
     public static double DEVIATION_COEFFICIENT = 2500;
-    public static double KP = 0.0120, KD = 0.0004;
+    public static double KP = 0.0080, KD = 0.0004;
 
     private final Motor motor1, motor2;
 
@@ -84,7 +84,7 @@ public class SlideSubController {
         double motor1Power = PDController1.calculate(motor1Position, targetPosition);
         double motor2Power = PDController2.calculate(motor2Position, targetPosition);
 
-        motor1.set(Math.abs(motor2Power) >= 0.05 ? motor2Power : 0);
+        motor1.set(Math.abs(motor1Power) >= 0.05 ? motor1Power : 0);
         motor2.set(Math.abs(motor2Power) >= 0.05 ? motor2Power : 0);
     }
 
@@ -102,9 +102,10 @@ public class SlideSubController {
     }
 
     public enum SlideState {
-        SAMPLE_INTAKE1(0), SAMPLE_INTAKE2(1600), SAMPLE_OUTTAKE(0), SAMPLE_OUTTAKE_LOW(750), SAMPLE_OUTTAKE_HIGH(2100),
-        CYCLING1(800), CYCLING2(2000),
-        SPECIMEN_INTAKE(0), SPECIMEN_OUTTAKE(1400),
+        ZERO(0),
+        SAMPLE_INTAKE1(400), SAMPLE_INTAKE2(1600), SAMPLE_OUTTAKE(800), SAMPLE_OUTTAKE_LOW(750), SAMPLE_OUTTAKE_HIGH(2100),
+        CYCLING1(800), CYCLING2(1600),
+        SPECIMEN_INTAKE(0), SPECIMEN_OUTTAKE(1140),
         ASCENT1(2200), ASCENT1_1(200), ASCENT2(600);
 
         public final int targetPosition;

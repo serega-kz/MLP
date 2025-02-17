@@ -17,10 +17,10 @@ import bobot.utilities.LerpController;
 @Config
 public class PivotSubController {
 
-    public static double LERP_RATE = 1400, LERP_TOLERANCE = 200;
-    public static double KP = 0.0050, KD = 0.0005;
+    public static double LERP_RATE = 1200, LERP_TOLERANCE = 200;
+    public static double KP = 0.0030, KD = 0.0003;
 
-    private final DigitalChannel touch1, touch2;
+    private final DigitalChannel touch;
 
     private final Motor motor1, motor2;
 
@@ -29,11 +29,8 @@ public class PivotSubController {
     private final PDController PDController2;
 
     public PivotSubController(HardwareMap hardwareMap) {
-        touch1 = hardwareMap.get(DigitalChannel.class, "pivotTouch1");
-        touch2 = hardwareMap.get(DigitalChannel.class, "pivotTouch2");
-
-        touch1.setMode(DigitalChannel.Mode.INPUT);
-        touch2.setMode(DigitalChannel.Mode.INPUT);
+        touch = hardwareMap.get(DigitalChannel.class, "pivotTouch2");
+        touch.setMode(DigitalChannel.Mode.INPUT);
 
         motor1 = new Motor(hardwareMap, "pivotMotor1");
         motor2 = new Motor(hardwareMap, "pivotMotor2");
@@ -58,12 +55,10 @@ public class PivotSubController {
         PDController2.setPID(KP, 0, KD);
         lerpController.setRateAndTolerance(LERP_RATE, LERP_TOLERANCE);
 
-        if (!touch1.getState() || !touch2.getState()) {
-            if (lerpController.getEndPosition() == -100) {
-                motor1.resetEncoder();
-                motor2.resetEncoder();
-                lerpController.reset();
-            }
+        if (!touch.getState() && lerpController.getEndPosition() == PivotState.SAMPLE_INTAKE.targetPosition) {
+            motor1.resetEncoder();
+            motor2.resetEncoder();
+            lerpController.reset();
         }
 
         int motor1Position = motor1.getCurrentPosition();
@@ -80,8 +75,7 @@ public class PivotSubController {
     public void debug(MultipleTelemetry multipleTelemetry) {
         multipleTelemetry.addLine("----- PIVOT CONTROLLER -----");
 
-        multipleTelemetry.addLine("PC: button 1 is " + (touch1.getState() ? "not " : "") + "pressed");
-        multipleTelemetry.addLine("PC: button 2 is " + (touch2.getState() ? "not " : "") + "pressed");
+        multipleTelemetry.addLine("PC: button is " + (touch.getState() ? "not " : "") + "pressed");
 
         multipleTelemetry.addData("PC: lerp progress", lerpController.getProgress());
         multipleTelemetry.addData("PC: target position", lerpController.calculate());
@@ -94,7 +88,7 @@ public class PivotSubController {
     }
 
     public enum PivotState {
-        SAMPLE_INTAKE(-100), SAMPLE_OUTTAKE(1030), SPECIMEN(830), ASCENT1(0), ASCENT2(0);
+        SAMPLE_INTAKE(-200), SAMPLE_OUTTAKE(1080), SPECIMEN(880), ASCENT1(0), ASCENT2(0);
 
         public final int targetPosition;
 

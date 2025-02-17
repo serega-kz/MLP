@@ -19,10 +19,10 @@ import bobot.controllers.ArmSubController;
 @TeleOp(group = "!1ROFLS")
 public class ArmSubControllerROFLS extends LinearOpMode {
 
-    public static double shoulderTargetPosition = 0.480;
-    public static double elbowTargetPosition = 0.540;
-    public static double wristTargetPosition = 0.480;
-    public static double clawTargetPosition = 0.620;
+    public static double shoulderTargetPosition = ArmSubController.ArmState.SAMPLE_INTAKE1.shoulderPosition;
+    public static double elbowTargetPosition = ArmSubController.ArmState.SAMPLE_INTAKE1.elbowPosition;
+    public static double wristTargetPosition = ArmSubController.ArmState.SAMPLE_INTAKE1.wristPosition;
+    public static double clawTargetPosition = ArmSubController.ArmState.SAMPLE_INTAKE1.clawPosition;
 
     @Override
     public void runOpMode() {

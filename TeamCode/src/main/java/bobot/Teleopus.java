@@ -7,9 +7,8 @@ import static bobot.utilities.ButtonController.*;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
-import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-
+import com.pedropathing.follower.Follower;
+import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.LED;
@@ -22,6 +21,8 @@ import java.util.List;
 import bobot.controllers.YameteKudasai;
 import bobot.controllers.HeadingController;
 import bobot.utilities.SmartGamepad;
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 public class Teleopus extends LinearOpMode {
 
@@ -39,22 +40,11 @@ public class Teleopus extends LinearOpMode {
 
         SmartGamepad driverOp = new SmartGamepad(gamepad1);
 
-        Motor FLMotor = new Motor(hardwareMap, "FLMotor");
-        FLMotor.setRunMode(Motor.RunMode.VelocityControl);
-        FLMotor.setInverted(true);
-
-        Motor FRMotor = new Motor(hardwareMap, "FRMotor");
-        FRMotor.setRunMode(Motor.RunMode.VelocityControl);
-
-        Motor BLMotor = new Motor(hardwareMap, "BLMotor");
-        BLMotor.setRunMode(Motor.RunMode.VelocityControl);
-        BLMotor.setInverted(true);
-
-        Motor BRMotor = new Motor(hardwareMap, "BRMotor");
-        BRMotor.setRunMode(Motor.RunMode.VelocityControl);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        Follower follower = new Follower(hardwareMap);
+        follower.startTeleopDrive();
 
         HeadingController headingController = new HeadingController(hardwareMap);
-        MecanumDrive mecanumDrive = new MecanumDrive(false, FLMotor, FRMotor, BLMotor, BRMotor);
 
         ScoringMode scoringMode = ScoringMode.SAMPLE;
         YameteKudasai やめてください = new YameteKudasai(hardwareMap, alliance, OpMode.TELEOPUS);
@@ -95,11 +85,12 @@ public class Teleopus extends LinearOpMode {
             double turnSpeed = scaleInput(driverOp.getRightX(), downscale);
             headingController.deviateTargetHeading(turnSpeed, period);
 
-            double strafePower = scaleInput(driverOp.getLeftX(), downscale);
             double forwardPower = scaleInput(driverOp.getLeftY(), downscale);
+            double strafePower = scaleInput(driverOp.getLeftX(), downscale);
             double turnPower = headingController.calculate();
 
-            mecanumDrive.driveRobotCentric(strafePower, forwardPower, turnPower);
+            follower.setTeleOpMovementVectors(forwardPower, strafePower, turnPower, true);
+            follower.update();
 
             ButtonEvent buttonYEvent = driverOp.getButtonYEvent();
             if (buttonYEvent == ButtonEvent.HOLDING) {

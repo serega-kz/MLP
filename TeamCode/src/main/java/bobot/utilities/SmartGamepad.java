@@ -40,7 +40,7 @@ public class SmartGamepad extends GamepadEx {
 
     @Override
     public double getLeftX() {
-        double currentValue = super.getLeftX();
+        double currentValue = -super.getLeftX();
         double output = slew(currentValue, previousLeftX);
 
         previousLeftX = output;

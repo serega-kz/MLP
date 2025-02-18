@@ -17,6 +17,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 
+import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -38,12 +39,13 @@ public class AutonomousSpecimen extends OpMode {
 
     private YameteKudasai やめてください;
     private Follower follower;
+    private Timer pathTime;
 
     private VoltageSensor voltageSensor;
     private MultipleTelemetry multipleTelemetry;
 
     private final Pose startPose = new Pose(7.9, 65.6, PI);
-    private final Pose scorePose = new Pose(41.5, 65.6, PI);
+    private final Pose scorePose = new Pose(40.5, 65.6, PI);
 
     private final Pose pickup0CP = new Pose(24.0, 72.0, PI);
     private final Pose pickup0Pose = new Pose(36.0, 36.0, PI);
@@ -62,7 +64,7 @@ public class AutonomousSpecimen extends OpMode {
 
     private final Pose specimenCP = new Pose(18.0, 72.0, PI);
     private final Pose specimenGrabPose = new Pose(24.0, 30.0, PI);
-    private final Pose specimenScorePose = new Pose(41.5, 70.0, PI);
+    private final Pose specimenScorePose = new Pose(40.5, 70.0, PI);
 
     private final Pose parkPose = new Pose(12.0, 30.0, 0);
 
@@ -77,14 +79,22 @@ public class AutonomousSpecimen extends OpMode {
 
         grabPickup = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(pickup0CP), new Point(pickup0Pose)))
-                .addPath(new BezierCurve(new Point(pickup0Pose), new Point(pickup1CP), new Point(pickup1Pose1)))
-                .addPath(new BezierLine(new Point(pickup1Pose1), new Point(pickup1Pose2)))
-                .addPath(new BezierCurve(new Point(pickup1Pose2), new Point(pickup2CP), new Point(pickup2Pose1)))
-                .addPath(new BezierLine(new Point(pickup2Pose1), new Point(pickup2Pose2)))
-                .addPath(new BezierCurve(new Point(pickup2Pose2), new Point(pickup3CP), new Point(pickup3Pose1)))
-                .addPath(new BezierLine(new Point(pickup3Pose1), new Point(pickup3Pose2)))
-                .addPath(new BezierLine(new Point(pickup3Pose2), new Point(specimenGrabPose)))
                 .setConstantHeadingInterpolation(scorePose.getHeading())
+                .addPath(new BezierCurve(new Point(pickup0Pose), new Point(pickup1CP), new Point(pickup1Pose1)))
+                .setConstantHeadingInterpolation(pickup0Pose.getHeading())
+                .addPath(new BezierLine(new Point(pickup1Pose1), new Point(pickup1Pose2)))
+                .setConstantHeadingInterpolation(pickup1Pose1.getHeading())
+                .addPath(new BezierCurve(new Point(pickup1Pose2), new Point(pickup2CP), new Point(pickup2Pose1)))
+                .setConstantHeadingInterpolation(pickup1Pose2.getHeading())
+                .addPath(new BezierLine(new Point(pickup2Pose1), new Point(pickup2Pose2)))
+                .setConstantHeadingInterpolation(pickup2Pose1.getHeading())
+                .addPath(new BezierCurve(new Point(pickup2Pose2), new Point(pickup3CP), new Point(pickup3Pose1)))
+                .setConstantHeadingInterpolation(pickup2Pose2.getHeading())
+                .addPath(new BezierLine(new Point(pickup3Pose1), new Point(pickup3Pose2)))
+                .setConstantHeadingInterpolation(pickup3Pose1.getHeading())
+                .addPath(new BezierLine(new Point(pickup3Pose2), new Point(specimenGrabPose)))
+                .setConstantHeadingInterpolation(pickup3Pose2.getHeading())
+
                 .build();
 
         scoreSpecimen = new Path(new BezierCurve(new Point(specimenGrabPose), new Point(specimenCP), new Point(specimenScorePose)));
@@ -103,11 +113,14 @@ public class AutonomousSpecimen extends OpMode {
 
     private void autonomousPathUpdate() {
         if (pathState == SCORE_PRELOAD) {
+            if (pathTime.getElapsedTime() <= 750) return;
+
             follower.followPath(scorePreload);
             setPathState(GRAB_PICKUP);
         } else if (pathState == GRAB_PICKUP) {
             if (isFollowerCooking()) return;
 
+            やめてください.proceedTransition(false);
             follower.followPath(grabPickup, true);
             setPathState(PICK_SPECIMEN1);
         } else if (pathState == PICK_SPECIMEN1 || pathState == PICK_SPECIMEN2 || pathState == PICK_SPECIMEN3 || pathState == PICK_SPECIMEN4) {
@@ -136,6 +149,7 @@ public class AutonomousSpecimen extends OpMode {
 
     private void setPathState(PathState pathState) {
         this.pathState = pathState;
+        pathTime.resetTimer();
     }
 
     @Override
@@ -148,6 +162,8 @@ public class AutonomousSpecimen extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+
+        pathTime = new Timer();
 
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 

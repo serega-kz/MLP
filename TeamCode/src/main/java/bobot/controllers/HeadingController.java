@@ -74,7 +74,7 @@ public class HeadingController {
         integratedHeading += deltaHeading;
         previousHeading = currentHeading;
 
-        return -headingController.calculate(integratedHeading, lerpController.calculate());
+        return headingController.calculate(integratedHeading, lerpController.calculate());
     }
 
     public void debug(MultipleTelemetry multipleTelemetry) {

@@ -2,7 +2,6 @@ package bobot.opModes;
 
 import static java.lang.Math.PI;
 import static bobot.controllers.YameteKudasai.*;
-import static bobot.controllers.YameteKudasai.Alliance.*;
 import static bobot.opModes.AutonomousSpecimen.PathState.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -39,13 +38,13 @@ public class AutonomousSpecimen extends OpMode {
 
     private YameteKudasai やめてください;
     private Follower follower;
-    private Timer pathTime;
+    private Timer pathTimer;
 
     private VoltageSensor voltageSensor;
     private MultipleTelemetry multipleTelemetry;
 
     private final Pose startPose = new Pose(7.9, 65.6, PI);
-    private final Pose scorePose = new Pose(40.5, 65.6, PI);
+    private final Pose scorePose = new Pose(40.0, 65.6, PI);
 
     private final Pose pickup0CP = new Pose(24.0, 72.0, PI);
     private final Pose pickup0Pose = new Pose(36.0, 36.0, PI);
@@ -64,7 +63,7 @@ public class AutonomousSpecimen extends OpMode {
 
     private final Pose specimenCP = new Pose(18.0, 72.0, PI);
     private final Pose specimenGrabPose = new Pose(24.0, 30.0, PI);
-    private final Pose specimenScorePose = new Pose(40.5, 70.0, PI);
+    private final Pose specimenScorePose = new Pose(40.0, 70.0, PI);
 
     private final Pose parkPose = new Pose(12.0, 30.0, 0);
 
@@ -113,14 +112,14 @@ public class AutonomousSpecimen extends OpMode {
 
     private void autonomousPathUpdate() {
         if (pathState == SCORE_PRELOAD) {
-            if (pathTime.getElapsedTime() <= 750) return;
+            if (pathTimer.getElapsedTime() <= 750) return;
 
             follower.followPath(scorePreload);
             setPathState(GRAB_PICKUP);
         } else if (pathState == GRAB_PICKUP) {
             if (isFollowerCooking()) return;
 
-            やめてください.proceedTransition(false);
+//            やめてください.proceedTransition(false);
             follower.followPath(grabPickup, true);
             setPathState(PICK_SPECIMEN1);
         } else if (pathState == PICK_SPECIMEN1 || pathState == PICK_SPECIMEN2 || pathState == PICK_SPECIMEN3 || pathState == PICK_SPECIMEN4) {
@@ -142,14 +141,14 @@ public class AutonomousSpecimen extends OpMode {
         else if (pathState == TRANSITION_TO_TELEOPUS) {
             if (isFollowerCooking()) return;
 
-            やめてください.setScoringMode(ScoringMode.SAMPLE);
+//            やめてください.setScoringMode(ScoringMode.SAMPLE);
             setPathState(AUTONOMOUS_FINISHED);
         }
     }
 
     private void setPathState(PathState pathState) {
         this.pathState = pathState;
-        pathTime.resetTimer();
+        pathTimer.resetTimer();
     }
 
     @Override
@@ -157,13 +156,14 @@ public class AutonomousSpecimen extends OpMode {
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        やめてください = new YameteKudasai(hardwareMap, NONE, YameteKudasai.OpMode.AUTONOMOUS_SPECIMEN);
+        pathTimer = new Timer();
+
+//        やめてください = new YameteKudasai(hardwareMap, NONE, YameteKudasai.OpMode.AUTONOMOUS_SPECIMEN);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-
-        pathTime = new Timer();
+        buildPaths();
 
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
@@ -174,8 +174,6 @@ public class AutonomousSpecimen extends OpMode {
 
         multipleTelemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         multipleTelemetry.setMsTransmissionInterval(50);
-
-        buildPaths();
     }
 
     @Override
@@ -195,10 +193,10 @@ public class AutonomousSpecimen extends OpMode {
         lastTimeStamp = currentTimeStamp;
 
         follower.update();
-        やめてください.update();
+//        やめてください.update();
         autonomousPathUpdate();
 
-        multipleTelemetry.addData("current state", やめてください.getCurrentState());
+//        multipleTelemetry.addData("current state", やめてください.getCurrentState());
         multipleTelemetry.addData("path state", pathState);
 
         double frequency = 1 / period;

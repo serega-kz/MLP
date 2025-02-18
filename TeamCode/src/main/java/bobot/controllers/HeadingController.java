@@ -17,7 +17,7 @@ public class HeadingController {
 
     public static double LERP_RATE = 150, LERP_TOLERANCE = 10;
     public static double DEVIATION_COEFFICIENT = 200;
-    public static double KP = 0.050, KD = 0.004;
+    public static double KP = 0.025, KD = 0.002;
 
     private final GoBildaPinpointDriver odo;
 

@@ -41,10 +41,15 @@ public class SlideSubController {
 
         PDController1 = new PDController(KP, KD);
         PDController2 = new PDController(KP, KD);
+        PDController2.setTolerance(20, 50);
     }
 
     public boolean isCooking() {
         return lerpController.getProgress() < 1;
+    }
+
+    public double getCurrentPosition() {
+        return motor1.getCurrentPosition();
     }
 
     public void deviateTargetPosition(double deviation, double dt) {
@@ -105,8 +110,8 @@ public class SlideSubController {
         ZERO(0),
         SAMPLE_INTAKE1(400), SAMPLE_INTAKE2(1600), SAMPLE_OUTTAKE(800), SAMPLE_OUTTAKE_LOW(750), SAMPLE_OUTTAKE_HIGH(2100),
         CYCLING1(800), CYCLING2(1600),
-        SPECIMEN_INTAKE(0), SPECIMEN_OUTTAKE(1140),
-        ASCENT1(2200), ASCENT1_1(200), ASCENT2(600);
+        SPECIMEN_INTAKE1(600), SPECIMEN_OUTTAKE(800),
+        ASCENT1(1600), ASCENT1_1(200), ASCENT2(600);
 
         public final int targetPosition;
 

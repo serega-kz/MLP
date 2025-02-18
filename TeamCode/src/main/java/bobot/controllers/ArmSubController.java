@@ -41,11 +41,11 @@ public class ArmSubController {
     public SampleColor getSampleColor() {
         float[] hsvValues = getColorSensorHSV();
 
-        if (hsvValues[2] < 100) return SampleColor.NONE;
+        if (hsvValues[2] < 80) return SampleColor.NONE;
 
-        if (Math.abs(hsvValues[0] - 17.3) <= 20) return SampleColor.RED; // 17.3 0.611 186
-        if (Math.abs(hsvValues[0] - 80.9) <= 20) return SampleColor.YELLOW; // 80.9 0.733 396
-        if (Math.abs(hsvValues[0] - 223) <= 20) return SampleColor.BLUE; // 223 0.820 203
+        if (Math.abs(hsvValues[0] - 26) <= 20) return SampleColor.RED;
+        if (Math.abs(hsvValues[0] - 81) <= 20) return SampleColor.YELLOW;
+        if (Math.abs(hsvValues[0] - 217) <= 20) return SampleColor.BLUE;
 
         return SampleColor.NONE;
     }
@@ -95,16 +95,16 @@ public class ArmSubController {
     }
 
     public enum ArmState {
-        SAMPLE_INTAKE1(0.480, 0.540, 0.480, 0.315),
-        SAMPLE_INTAKE2(0.500, 0.880, 0.480, 0.315),
-        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.170),
-        SAMPLE_OUTTAKE1(0.480, 0.540, 0.480, 0.170),
-        SAMPLE_OUTTAKE2(0.480, 0.320, 0.900, 0.315),
+        SAMPLE_INTAKE1(0.480, 0.540, 0.400, 0.285),
+        SAMPLE_INTAKE2(0.500, 0.880, 0.400, 0.285),
+        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.140),
+        SAMPLE_OUTTAKE1(0.480, 0.540, 0.400, 0.140),
+        SAMPLE_OUTTAKE2(0.480, 0.320, 0.820, 0.285),
         SAMPLE_INTAKE_AUTO(0.000, 0.000, 0.000, 0.000),
-        SPECIMEN_INTAKE1(0.080, 0.720, 0.480, 0.315),
-        SPECIMEN_INTAKE2(0.080, 0.720, 0.480, 0.170),
-        SPECIMEN_OUTTAKE(0.820, 0.160, 0.980, 0.170),
-        ASCENT(0.000, 0.000, 0.000, 0.000);
+        SPECIMEN_INTAKE1(0.480, 0.540, 0.400, 0.285),
+        SPECIMEN_INTAKE2(0.400, 0.540, 0.400, 0.140),
+        SPECIMEN_OUTTAKE(0.230, 0.920, 0.950, 0.140),
+        ASCENT(0.480, 0.540, 0.400, 0.285);
 
         public final double shoulderPosition;
         public final double elbowPosition;

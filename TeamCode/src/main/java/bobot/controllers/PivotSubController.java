@@ -88,7 +88,9 @@ public class PivotSubController {
     }
 
     public enum PivotState {
-        SAMPLE_INTAKE(-200), SAMPLE_OUTTAKE(1080), SPECIMEN(880), ASCENT1(0), ASCENT2(0);
+        SAMPLE_INTAKE(-200), SAMPLE_OUTTAKE(1080),
+        SPECIMEN_INTAKE(-200), SPECIMEN_OUTTAKE(1180),
+        ASCENT1(680), ASCENT1_1(1080), ASCENT2(880), ASCENT3(1080);
 
         public final int targetPosition;
 

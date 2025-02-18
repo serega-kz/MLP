@@ -44,20 +44,20 @@ public class AutonomousSample extends OpMode {
     private VoltageSensor voltageSensor;
     private MultipleTelemetry multipleTelemetry;
 
-    private final Pose startPose = new Pose(7.900, 113.500, 0);
-    private final Pose scorePose = new Pose(14.000, 130.000, -PI / 4);
+    private final Pose startPose = new Pose(7.9, 113.5, 0);
+    private final Pose scorePose = new Pose(14.0, 130.0, -PI / 4);
 
-    private final Pose score1CP = new Pose(24.000, 120.000);
+    private final Pose score1CP = new Pose(24.0, 120.0);
 
-    private final Pose pickup1Pose = new Pose(30.000, 121.500, 0);
-    private final Pose pickup2Pose = new Pose(30.000, 131.500, 0);
+    private final Pose pickup1Pose = new Pose(30.0, 121.5, 0);
+    private final Pose pickup2Pose = new Pose(30.0, 131.5, 0);
 
-    private final Pose pickup3CP = new Pose(48.000, 108.000);
-    private final Pose pickup3Pose = new Pose(45.500, 135.000, -PI / 2);
-    private final Pose score4CP = new Pose(48.000, 108.000);
+    private final Pose pickup3CP = new Pose(48.0, 108.0);
+    private final Pose pickup3Pose = new Pose(45.5, 135.0, -PI / 2);
+    private final Pose score4CP = new Pose(48.0, 108.0);
 
-    private final Pose parkCP = new Pose(72.000, 120.000);
-    private final Pose parkPose = new Pose(60.000, 100.000, -PI / 2);
+    private final Pose parkCP = new Pose(72.0, 120.0);
+    private final Pose parkPose = new Pose(60.0, 100.0, -PI / 2);
 
     private Path scorePreload, park;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;

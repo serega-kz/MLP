@@ -137,67 +137,67 @@ public class AutonomousSpecimen extends OpMode {
     }
 
     private void autonomousPathUpdate() {
-        if (pathState == -1) {
+        if (pathState == 0) {
             if (pathTimer.getElapsedTime() <= 800) return;
-            setPathState(0);
-        } else if (pathState == 0) {
-            follower.followPath(scorePreload, false);
             setPathState(1);
         } else if (pathState == 1) {
-            if (isFollowerCooking()) return;
-
-            follower.followPath(grabPickup1, false);
-            やめてください.proceedTransition();
+            follower.followPath(scorePreload, false);
             setPathState(2);
         } else if (pathState == 2) {
             if (isFollowerCooking()) return;
 
-            follower.followPath(grabPickup2, false);
+            follower.followPath(grabPickup1, false);
+            やめてください.proceedTransition();
             setPathState(3);
         } else if (pathState == 3) {
+            if (isFollowerCooking()) return;
+
+            follower.followPath(grabPickup2, false);
+            setPathState(4);
+        } else if (pathState == 4) {
 
             if (isFollowerCooking()) return;
 
             follower.followPath(grabPickup3, false);
-            setPathState(4);
-        } else if (pathState == 4) {
+            setPathState(5);
+        } else if (pathState == 5) {
             if (isFollowerCooking()) return;
 
             follower.followPath(grabSpecimen);
-            setPathState(5);
-        } else if (pathState == 5) {
+            setPathState(6);
+        } else if (pathState == 6) {
             if (isFollowerCooking()) return;
 
             if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
             else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
                 follower.followPath(scoreSpecimen1, true);
-                setPathState(6);
+                setPathState(7);
             }
         }
-        else if (pathState == 6) {
+        else if (pathState == 7) {
             if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
             if (isFollowerCooking()) return;
 
             if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
             else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
                 follower.followPath(scoreSpecimen2, true);
-                setPathState(7);
-            }
-        } else if (pathState == 7) {
-            if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
-            if (isFollowerCooking()) return;
-
-            if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
-            else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
-                follower.followPath(scoreSpecimen3, true);
                 setPathState(8);
             }
         } else if (pathState == 8) {
             if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
             if (isFollowerCooking()) return;
 
+            if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
+            else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
+                follower.followPath(scoreSpecimen3, true);
+                setPathState(9);
+            }
+        } else if (pathState == 9) {
+            if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
+            if (isFollowerCooking()) return;
+
             やめてください.setSlideTargetPosition(SlideSubController.SlideState.ZERO.targetPosition);
-            setPathState(-2);
+            setPathState(-1);
         }
     }
 
@@ -233,7 +233,7 @@ public class AutonomousSpecimen extends OpMode {
 
     @Override
     public void start() {
-        setPathState(-1);
+        setPathState(0);
         lastTimeStamp = 0;
     }
 

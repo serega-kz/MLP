@@ -215,6 +215,7 @@ public class AutonomousSample extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+        follower.setMaxPower(0.4);
 
         pathTimer = new com.pedropathing.util.Timer();
 
@@ -261,26 +262,5 @@ public class AutonomousSample extends OpMode {
         multipleTelemetry.addData("voltage", voltage);
 
         multipleTelemetry.update();
-    }
-
-    public enum PathState {
-        SCORE_PRELOAD,
-        SCORE_PRELOAD_1,
-        GRAB_PICKUP1,
-        GRAB_PICKUP1_1,
-        GRAB_PICKUP1_2,
-        SCORE_PICKUP1,
-        SCORE_PICKUP1_1,
-        GRAB_PICKUP2,
-        GRAB_PICKUP2_1,
-        GRAB_PICKUP2_2,
-        SCORE_PICKUP2,
-        SCORE_PICKUP2_1,
-        GRAB_PICKUP3,
-        GRAB_PICKUP3_1,
-        SCORE_PICKUP3,
-        SCORE_PICKUP3_1,
-        PARK,
-        AUTONOMOUS_FINISHED
     }
 }

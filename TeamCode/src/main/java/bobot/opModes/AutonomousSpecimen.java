@@ -27,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.List;
 
+import bobot.controllers.SlideSubController;
 import bobot.controllers.YameteKudasai;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -46,10 +47,10 @@ public class AutonomousSpecimen extends OpMode {
     private MultipleTelemetry multipleTelemetry;
 
     private final Pose startPose = new Pose(7.9, 65.6, PI);
-    private final Pose scorePose = new Pose(38.0, 65.6, PI);
+    private final Pose scorePose = new Pose(37.0, 65.6, PI);
 
-    private final Pose pickup0CP = new Pose(36.0, 56.0, PI);
-    private final Pose pickup0Pose = new Pose(36.0, 36.0, PI);
+    private final Pose pickup0CP = new Pose(32.0, 56.0, PI);
+    private final Pose pickup0Pose = new Pose(32.0, 36.0, PI);
 
     private final Pose pickup1CP = new Pose(46.0, 38.0, PI);
     private final Pose pickup1Pose1 = new Pose(56.0, 22.5, PI);
@@ -64,7 +65,7 @@ public class AutonomousSpecimen extends OpMode {
     private final Pose pickup3Pose2 = new Pose(20.0, 7.0, PI);
 
     private final Pose specimenCP = new Pose(20.0, 72.0, PI);
-    private final Pose specimenGrabPose = new Pose(20.0, 30.0, PI);
+    private final Pose specimenGrabPose = new Pose(20.0, 32.0, PI);
     private final Pose specimenScorePose1 = new Pose(38.0, 67.6, PI);
     private final Pose specimenScorePose2 = new Pose(38.0, 69.6, PI);
     private final Pose specimenScorePose3 = new Pose(38.0, 71.6, PI);
@@ -137,7 +138,7 @@ public class AutonomousSpecimen extends OpMode {
 
     private void autonomousPathUpdate() {
         if (pathState == -1) {
-            if (pathTimer.getElapsedTime() <= 1000) return;
+            if (pathTimer.getElapsedTime() <= 800) return;
             setPathState(0);
         } else if (pathState == 0) {
             follower.followPath(scorePreload, false);
@@ -149,15 +150,12 @@ public class AutonomousSpecimen extends OpMode {
             やめてください.proceedTransition();
             setPathState(2);
         } else if (pathState == 2) {
-            if (follower.getCurrentTValue() >= 0.90) follower.setMaxPower(0.6);
             if (isFollowerCooking()) return;
 
-            if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
-            else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
-                follower.followPath(grabPickup2, false);
-                setPathState(3);
-            }
+            follower.followPath(grabPickup2, false);
+            setPathState(3);
         } else if (pathState == 3) {
+
             if (isFollowerCooking()) return;
 
             follower.followPath(grabPickup3, false);
@@ -165,38 +163,40 @@ public class AutonomousSpecimen extends OpMode {
         } else if (pathState == 4) {
             if (isFollowerCooking()) return;
 
-            follower.followPath(grabSpecimen, false);
+            follower.followPath(grabSpecimen);
             setPathState(5);
         } else if (pathState == 5) {
             if (isFollowerCooking()) return;
 
             if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
             else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
-                follower.followPath(scoreSpecimen1, false);
+                follower.followPath(scoreSpecimen1, true);
                 setPathState(6);
             }
-        } else if (pathState == 6) {
-            if (follower.getPose().getX() >= 37) やめてください.proceedTransition();
+        }
+        else if (pathState == 6) {
+            if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
             if (isFollowerCooking()) return;
 
             if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
             else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
-                follower.followPath(scoreSpecimen2, false);
+                follower.followPath(scoreSpecimen2, true);
                 setPathState(7);
             }
         } else if (pathState == 7) {
-            if (follower.getPose().getX() >= 37) やめてください.proceedTransition();
+            if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
             if (isFollowerCooking()) return;
 
             if (やめてください.getCurrentState() == SPECIMEN_INTAKE) やめてください.proceedTransition();
             else if (やめてください.getCurrentState() == SPECIMEN_INTAKE_5) {
-                follower.followPath(scoreSpecimen3, false);
+                follower.followPath(scoreSpecimen3, true);
                 setPathState(8);
             }
         } else if (pathState == 8) {
-            if (follower.getPose().getX() >= 37) やめてください.proceedTransition();
+            if (follower.getPose().getX() >= 38.5) やめてください.proceedTransition();
             if (isFollowerCooking()) return;
 
+            やめてください.setSlideTargetPosition(SlideSubController.SlideState.ZERO.targetPosition);
             setPathState(-2);
         }
     }
@@ -253,6 +253,7 @@ public class AutonomousSpecimen extends OpMode {
         follower.update();
 
         multipleTelemetry.addData("current state", やめてください.getCurrentState());
+        multipleTelemetry.addData("current t value", follower.getCurrentTValue());
         multipleTelemetry.addData("path state", pathState);
 
         double frequency = 1 / period;

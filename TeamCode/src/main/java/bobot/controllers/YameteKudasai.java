@@ -54,13 +54,17 @@ public class YameteKudasai {
     public void rotateWrist(Direction direction) {
         if (currentState != SAMPLE_INTAKE2 && currentState != SAMPLE_OUTTAKE) return;
 
-        double deviation = direction == Direction.CLOCKWISE ? -0.140 : 0.140;
+        double deviation = direction == Direction.CLOCKWISE ? 0.140 : -0.140;
         armSubController.deviateWristPosition(deviation);
     }
 
     public void deviateSlideTargetPosition(double deviation, double dt) {
         if (currentState != SAMPLE_INTAKE2 && currentState != SAMPLE_OUTTAKE && currentState != ASCENT2 && currentState != ASCENT3) return;
         slideSubController.deviateTargetPosition(deviation, dt);
+    }
+
+    public void setSlideTargetPosition(double targetPosition) {
+        if (isAutonomous) slideSubController.setTargetPosition(targetPosition);
     }
 
     public void setScoringMode(ScoringMode scoringMode) {
@@ -126,8 +130,9 @@ public class YameteKudasai {
         if (targetState == AUTONOMOUS_SAMPLE_START) {
             pivotSubController.setTargetPosition(PivotState.SAMPLE_OUTTAKE.targetPosition);
             targetState = AUTONOMOUS_SAMPLE_START_1;
+            transitionTimer.reset();
         } else if (targetState == AUTONOMOUS_SAMPLE_START_1) {
-            if (pivotSubController.isCooking()) return;
+            if (transitionTimer.time() <= 300) return;
 
             slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE_HIGH.targetPosition);
             currentState = SAMPLE_OUTTAKE;
@@ -333,7 +338,7 @@ public class YameteKudasai {
             targetState = SPECIMEN_INTAKE;
         } else if (currentState == SPECIMEN_OUTTAKE && targetState == SPECIMEN_INTAKE) {
             armSubController.setClawPosition(ArmState.SPECIMEN_INTAKE1.clawPosition);
-            slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE1.targetPosition);
+            slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE1.targetPosition - 200);
             currentState = SPECIMEN_OUTTAKE_1;
         } else if (currentState == SPECIMEN_OUTTAKE_1) {
             if (slideSubController.isCooking()) return;
@@ -345,6 +350,7 @@ public class YameteKudasai {
 
             armSubController.setSensorLED(true);
             armSubController.setTargetState(ArmState.SPECIMEN_INTAKE1);
+            slideSubController.setTargetPosition(SlideState.SPECIMEN_INTAKE1.targetPosition);
             currentState = SPECIMEN_INTAKE;
         }
     }

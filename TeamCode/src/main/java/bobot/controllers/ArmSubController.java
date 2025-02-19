@@ -63,7 +63,7 @@ public class ArmSubController {
         double currentPosition = wristServo.getPosition();
         double targetPosition = currentPosition + deviation;
 
-        if (targetPosition < 0.315) targetPosition = 0.735;
+        if (targetPosition < 0.175) targetPosition = 0.735;
         if (targetPosition > 0.875) targetPosition = 0.455;
 
         setWristPosition(targetPosition);
@@ -103,8 +103,8 @@ public class ArmSubController {
         SAMPLE_INTAKE_AUTO(0.000, 0.000, 0.000, 0.000),
         SPECIMEN_INTAKE1(0.480, 0.540, 0.595, 0.285),
         SPECIMEN_INTAKE2(0.480, 0.300, 0.595, 0.140),
-        SPECIMEN_OUTTAKE(0.230, 0.920, 0.005, 0.140),
-        ASCENT(0.480, 0.540, 0.400, 0.285);
+        SPECIMEN_OUTTAKE(0.240, 0.920, 0.005, 0.140),
+        ASCENT(0.480, 0.540, 0.595, 0.285);
 
         public final double shoulderPosition;
         public final double elbowPosition;

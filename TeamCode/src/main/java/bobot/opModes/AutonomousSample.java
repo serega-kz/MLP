@@ -3,7 +3,6 @@ package bobot.opModes;
 import static java.lang.Math.*;
 import static bobot.controllers.YameteKudasai.Alliance.*;
 import static bobot.controllers.YameteKudasai.State.*;
-import static bobot.opModes.AutonomousSample.PathState.*;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -62,7 +61,7 @@ public class AutonomousSample extends OpMode {
     private Path scorePreload, park;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
 
-    private PathState pathState;
+    private int pathState;
 
     private void buildPaths() {
         scorePreload = new Path(new BezierCurve(new Point(startPose), new Point(score1CP), new Point(scorePose)));
@@ -107,100 +106,100 @@ public class AutonomousSample extends OpMode {
     }
 
     private void autonomousPathUpdate() {
-        if (pathState == SCORE_PRELOAD) {
-            follower.followPath(scorePreload, true);
-            setPathState(SCORE_PRELOAD_1);
-        } else if (pathState == SCORE_PRELOAD_1) {
+        if (pathState == 0) {
+            follower.followPath(scorePreload);
+            setPathState(1);
+        } else if (pathState == 1) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedTransition();
-            setPathState(GRAB_PICKUP1);
-        } else if (pathState == GRAB_PICKUP1) {
+            setPathState(2);
+        } else if (pathState == 2) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
-            follower.followPath(grabPickup1, true);
-            setPathState(GRAB_PICKUP1_1);
-        } else if (pathState == GRAB_PICKUP1_1) {
+            follower.followPath(grabPickup1);
+            setPathState(3);
+        } else if (pathState == 3) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE1) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedTransition();
-            setPathState(GRAB_PICKUP1_2);
-        } else if (pathState == GRAB_PICKUP1_2) {
+            setPathState(4);
+        } else if (pathState == 4) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE2) return;
 
             やめてください.proceedTransition();
-            setPathState(SCORE_PICKUP1);
-        } else if (pathState == SCORE_PICKUP1) {
+            setPathState(5);
+        } else if (pathState == 5) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
 
-            follower.followPath(scorePickup1, true);
-            setPathState(SCORE_PICKUP1_1);
-        } else if (pathState == SCORE_PICKUP1_1) {
+            follower.followPath(scorePickup1);
+            setPathState(6);
+        } else if (pathState == 6) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedTransition();
-            setPathState(GRAB_PICKUP2);
-        } else if (pathState == GRAB_PICKUP2) {
+            setPathState(7);
+        } else if (pathState == 7) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
-            follower.followPath(grabPickup2, true);
-            setPathState(GRAB_PICKUP2_1);
-        } else if (pathState == GRAB_PICKUP2_1) {
+            follower.followPath(grabPickup2);
+            setPathState(8);
+        } else if (pathState == 8) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE1) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedTransition();
-            setPathState(GRAB_PICKUP2_2);
-        } else if (pathState == GRAB_PICKUP2_2) {
+            setPathState(9);
+        } else if (pathState == 9) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE2) return;
 
             やめてください.proceedTransition();
-            setPathState(SCORE_PICKUP2);
-        } else if (pathState == SCORE_PICKUP2) {
+            setPathState(10);
+        } else if (pathState == 10) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
 
-            follower.followPath(scorePickup2, true);
-            setPathState(SCORE_PICKUP2_1);
-        } else if (pathState == SCORE_PICKUP2_1) {
+            follower.followPath(scorePickup2);
+            setPathState(11);
+        } else if (pathState == 11) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedAutoTransition();
-            setPathState(GRAB_PICKUP3);
-        } else if (pathState == GRAB_PICKUP3) {
+            setPathState(12);
+        } else if (pathState == 12) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
-            follower.followPath(grabPickup3, true);
-            setPathState(GRAB_PICKUP3_1);
-        } else if (pathState == GRAB_PICKUP3_1) {
+            follower.followPath(grabPickup3);
+            setPathState(13);
+        } else if (pathState == 13) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedTransition();
-            setPathState(SCORE_PICKUP3);
-        } else if (pathState == SCORE_PICKUP3) {
+            setPathState(14);
+        } else if (pathState == 14) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO_2) return;
 
-            follower.followPath(scorePickup3, true);
-            setPathState(SCORE_PICKUP3_1);
-        } else if (pathState == SCORE_PICKUP3_1) {
+            follower.followPath(scorePickup3);
+            setPathState(15);
+        } else if (pathState == 15) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE) return;
             if (isFollowerCooking()) return;
 
             やめてください.proceedTransition();
-            setPathState(PARK);
-        } else if (pathState == PARK) {
+            setPathState(16);
+        } else if (pathState == 16) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
-            follower.followPath(park, true);
-            setPathState(AUTONOMOUS_FINISHED);
+            follower.followPath(park);
+            setPathState(17);
         }
     }
 
-    private void setPathState(PathState pathState) {
+    private void setPathState(int pathState) {
         this.pathState = pathState;
         pathTimer.resetTimer();
     }
@@ -234,7 +233,7 @@ public class AutonomousSample extends OpMode {
 
     @Override
     public void start() {
-        setPathState(SCORE_PRELOAD);
+        setPathState(0);
         lastTimeStamp = 0;
     }
 

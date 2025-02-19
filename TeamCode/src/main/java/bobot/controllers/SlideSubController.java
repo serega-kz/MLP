@@ -48,6 +48,11 @@ public class SlideSubController {
         return lerpController.getProgress() < 1;
     }
 
+    public void start(double startPosition, double endPosition) {
+        lerpController.setStartPosition(startPosition);
+        lerpController.setEndPosition(endPosition);
+    }
+
     public double getCurrentPosition() {
         return motor1.getCurrentPosition();
     }
@@ -110,7 +115,7 @@ public class SlideSubController {
         ZERO(0),
         SAMPLE_INTAKE1(400), SAMPLE_INTAKE2(1600), SAMPLE_OUTTAKE(800), SAMPLE_OUTTAKE_LOW(750), SAMPLE_OUTTAKE_HIGH(2100),
         CYCLING1(800), CYCLING2(1600),
-        SPECIMEN_INTAKE1(600), SPECIMEN_OUTTAKE(800),
+        SPECIMEN_INTAKE1(600), SPECIMEN_INTAKE2(1200), SPECIMEN_OUTTAKE(800),
         ASCENT1(1600), ASCENT1_1(200), ASCENT2(600);
 
         public final int targetPosition;

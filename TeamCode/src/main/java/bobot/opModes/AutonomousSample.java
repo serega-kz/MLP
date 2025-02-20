@@ -43,16 +43,16 @@ public class AutonomousSample extends OpMode {
     private VoltageSensor voltageSensor;
     private MultipleTelemetry multipleTelemetry;
 
-    private final Pose startPose = new Pose(7.9, 113.5, 0);
-    private final Pose scorePose = new Pose(14.0, 130.0, -PI / 4);
+    private final Pose startPose = new Pose(7.9, 113.5, -PI / 2);
+    private final Pose scorePose = new Pose(13.0, 132.0, -PI / 4);
 
     private final Pose score1CP = new Pose(24.0, 120.0);
 
-    private final Pose pickup1Pose = new Pose(30.0, 121.5, 0);
-    private final Pose pickup2Pose = new Pose(30.0, 131.5, 0);
+    private final Pose pickup1Pose = new Pose(24.0, 122.5, 0);
+    private final Pose pickup2Pose = new Pose(24.0, 132.0, 0);
 
     private final Pose pickup3CP = new Pose(48.0, 108.0);
-    private final Pose pickup3Pose = new Pose(45.5, 135.0, -PI / 2);
+    private final Pose pickup3Pose = new Pose(46.5, 135.0, -PI / 2);
     private final Pose score4CP = new Pose(48.0, 108.0);
 
     private final Pose parkCP = new Pose(72.0, 120.0);
@@ -107,6 +107,7 @@ public class AutonomousSample extends OpMode {
 
     private void autonomousPathUpdate() {
         if (pathState == 0) {
+            follower.setMaxPower(0.6);
             follower.followPath(scorePreload);
             setPathState(1);
         } else if (pathState == 1) {
@@ -118,6 +119,7 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == 2) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
+            follower.setMaxPower(0.4);
             follower.followPath(grabPickup1);
             setPathState(3);
         } else if (pathState == 3) {
@@ -127,6 +129,7 @@ public class AutonomousSample extends OpMode {
             やめてください.proceedTransition();
             setPathState(4);
         } else if (pathState == 4) {
+            if (pathTimer.getElapsedTime() <= 1000) return;
             if (やめてください.getCurrentState() != SAMPLE_INTAKE2) return;
 
             やめてください.proceedTransition();
@@ -154,13 +157,16 @@ public class AutonomousSample extends OpMode {
             やめてください.proceedTransition();
             setPathState(9);
         } else if (pathState == 9) {
+            if (pathTimer.getElapsedTime() <= 1000) return;
             if (やめてください.getCurrentState() != SAMPLE_INTAKE2) return;
 
             やめてください.proceedTransition();
             setPathState(10);
         } else if (pathState == 10) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
+            if (pathTimer.getElapsedTime() <= 1000) return;
 
+            follower.setMaxPower(0.4);
             follower.followPath(scorePickup2);
             setPathState(11);
         } else if (pathState == 11) {
@@ -170,15 +176,16 @@ public class AutonomousSample extends OpMode {
             やめてください.proceedAutoTransition();
             setPathState(12);
         } else if (pathState == 12) {
-            if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
+            if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_AUTO_2) return;
 
+            follower.setMaxPower(0.6);
             follower.followPath(grabPickup3);
             setPathState(13);
         } else if (pathState == 13) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO) return;
             if (isFollowerCooking()) return;
 
-            やめてください.proceedTransition();
+            やめてください.proceedAutoTransition();
             setPathState(14);
         } else if (pathState == 14) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO_2) return;
@@ -194,8 +201,14 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == 16) {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
+            follower.setMaxPower(1.0);
             follower.followPath(park);
             setPathState(17);
+        } else if (pathState == 17) {
+            if (isFollowerCooking()) return;
+
+            やめてください.setSlideTargetPosition(800);
+            やめてください.setPivotTargetPosition(600);
         }
     }
 
@@ -209,12 +222,12 @@ public class AutonomousSample extends OpMode {
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        やめてください = new YameteKudasai(hardwareMap, NONE, YameteKudasai.OpMode.AUTONOMOUS_SPECIMEN);
+        やめてください = new YameteKudasai(hardwareMap, NONE, YameteKudasai.OpMode.AUTONOMOUS_SAMPLE);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        follower.setMaxPower(0.4);
+        follower.setMaxPower(0.3);
 
         pathTimer = new com.pedropathing.util.Timer();
 

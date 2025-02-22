@@ -42,6 +42,12 @@ public class PivotSubController {
         PDController2 = new PDController(KP, KD);
     }
 
+    public void start() {
+        double currentPosition = motor1.getCurrentPosition();
+        lerpController.setStartPosition(currentPosition);
+        lerpController.setEndPosition(currentPosition);
+    }
+
     public boolean isCooking() {
         return lerpController.getProgress() < 1;
     }

@@ -48,9 +48,10 @@ public class SlideSubController {
         return lerpController.getProgress() < 1;
     }
 
-    public void start(double startPosition, double endPosition) {
-        lerpController.setStartPosition(startPosition);
-        lerpController.setEndPosition(endPosition);
+    public void start() {
+        double currentPosition = motor1.getCurrentPosition();
+        lerpController.setStartPosition(currentPosition);
+        lerpController.setEndPosition(currentPosition);
     }
 
     public double getCurrentPosition() {

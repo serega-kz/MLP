@@ -48,17 +48,18 @@ public class AutonomousSample extends OpMode {
 
     private final Pose score1CP = new Pose(24.0, 120.0);
 
-    private final Pose pickup1Pose = new Pose(24.0, 122.5, 0);
-    private final Pose pickup2Pose = new Pose(24.0, 132.0, 0);
+    private final Pose pickup1Pose = new Pose(24.0, 123.0, 0);
+    private final Pose pickup2Pose = new Pose(24.0, 133.0, 0);
 
     private final Pose pickup3CP = new Pose(48.0, 108.0);
     private final Pose pickup3Pose = new Pose(46.5, 135.0, -PI / 2);
     private final Pose score4CP = new Pose(48.0, 108.0);
 
     private final Pose parkCP = new Pose(72.0, 120.0);
-    private final Pose parkPose = new Pose(60.0, 100.0, -PI / 2);
+    private final Pose parkPose1 = new Pose(60.0, 110.0, -PI / 2);
+    private final Pose parkPose2 = new Pose(60.0, 100.0, -PI / 2);
 
-    private Path scorePreload, park;
+    private Path scorePreload, park1, park2;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
 
     private int pathState;
@@ -97,8 +98,11 @@ public class AutonomousSample extends OpMode {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .build();
 
-        park = new Path(new BezierCurve(new Point(scorePose), new Point(parkCP), new Point(parkPose)));
-        park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
+        park1 = new Path(new BezierCurve(new Point(scorePose), new Point(parkCP), new Point(parkPose1)));
+        park1.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose1.getHeading());
+
+        park2 = new Path(new BezierLine(new Point(parkPose1), new Point(parkPose2)));
+        park2.setConstantHeadingInterpolation(parkPose1.getHeading());
     }
 
     private boolean isFollowerCooking() {
@@ -129,12 +133,13 @@ public class AutonomousSample extends OpMode {
             やめてください.proceedTransition();
             setPathState(4);
         } else if (pathState == 4) {
-            if (pathTimer.getElapsedTime() <= 1000) return;
+            if (pathTimer.getElapsedTime() <= 750) return;
             if (やめてください.getCurrentState() != SAMPLE_INTAKE2) return;
 
             やめてください.proceedTransition();
             setPathState(5);
         } else if (pathState == 5) {
+            if (pathTimer.getElapsedTime() <= 1000) return;
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
 
             follower.followPath(scorePickup1);
@@ -157,7 +162,7 @@ public class AutonomousSample extends OpMode {
             やめてください.proceedTransition();
             setPathState(9);
         } else if (pathState == 9) {
-            if (pathTimer.getElapsedTime() <= 1000) return;
+            if (pathTimer.getElapsedTime() <= 750) return;
             if (やめてください.getCurrentState() != SAMPLE_INTAKE2) return;
 
             やめてください.proceedTransition();
@@ -188,7 +193,7 @@ public class AutonomousSample extends OpMode {
             やめてください.proceedAutoTransition();
             setPathState(14);
         } else if (pathState == 14) {
-            if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO_2) return;
+            if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO_3) return;
 
             follower.followPath(scorePickup3);
             setPathState(15);
@@ -202,13 +207,22 @@ public class AutonomousSample extends OpMode {
             if (やめてください.getCurrentState() != SAMPLE_OUTTAKE_2) return;
 
             follower.setMaxPower(1.0);
-            follower.followPath(park);
+            follower.followPath(park1);
             setPathState(17);
         } else if (pathState == 17) {
             if (isFollowerCooking()) return;
 
+            やめてください.setPivotTargetPosition(680);
             やめてください.setSlideTargetPosition(800);
-            やめてください.setPivotTargetPosition(600);
+            pathState = 18;
+        } else if (pathState == 18) {
+            if (pathTimer.getElapsedTime() <= 5000) return;
+
+            follower.followPath(park2);
+            pathState = 19;
+        } else if (pathState == 19) {
+            if (isFollowerCooking()) return;
+            pathState = 20;
         }
     }
 

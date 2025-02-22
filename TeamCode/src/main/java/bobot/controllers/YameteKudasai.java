@@ -48,7 +48,6 @@ public class YameteKudasai {
             scoringMode = SPECIMEN;
             isAutonomous = true;
         } else if (opMode == TELEOPUS) {
-            slideSubController.start(slideSubController.getCurrentPosition(), slideSubController.getCurrentPosition());
             targetState = TELEOPUS_START;
             scoringMode = SAMPLE;
         }
@@ -161,10 +160,6 @@ public class YameteKudasai {
             if (transitionTimer.time() <= 750) return;
 
             pivotSubController.setTargetPosition(PivotState.SAMPLE_INTAKE.targetPosition);
-            targetState = TELEOPUS_START_2;
-        } else if (targetState == TELEOPUS_START_2) {
-            if (pivotSubController.isCooking()) return;
-
             slideSubController.setTargetPosition(SlideState.SAMPLE_INTAKE1.targetPosition);
             currentState = SAMPLE_INTAKE1;
             targetState = SAMPLE_INTAKE1;
@@ -220,12 +215,12 @@ public class YameteKudasai {
             slideSubController.setTargetPosition(SlideState.ZERO.targetPosition);
             currentState = SAMPLE_INTAKE_AUTO_1;
         } else if (currentState == SAMPLE_INTAKE_AUTO_1) {
-            if (transitionTimer.time() <= 400) return;
+            if (transitionTimer.time() <= 500) return;
 
             armSubController.setClawPosition(ArmState.SAMPLE_OUTTAKE1.clawPosition);
             currentState = SAMPLE_INTAKE_AUTO_2;
         } else if (currentState == SAMPLE_INTAKE_AUTO_2) {
-            if (transitionTimer.time() <= 450) return;
+            if (transitionTimer.time() <= 550) return;
 
             slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE_HIGH.targetPosition);
             currentState = SAMPLE_INTAKE_AUTO_3;
@@ -460,14 +455,18 @@ public class YameteKudasai {
     }
 
     public void update() {
+        if (targetState.ordinal() <= 6) {
+            completeOpModeTransition();
+            return;
+        }
+
         pivotSubController.update();
         slideSubController.update();
 
         if (currentState == targetState) return;
 
         completeStateTransition();
-        if (targetState.ordinal() <= 6) completeOpModeTransition();
-        else if (scoringMode == SAMPLE) completeSampleTransition();
+        if (scoringMode == SAMPLE) completeSampleTransition();
         else if (scoringMode == SPECIMEN) completeSpecimenTransition();
         else if (scoringMode == CYCLING) completeCyclingTransition();
         else if (scoringMode == ASCENT) completeAscentTransition();

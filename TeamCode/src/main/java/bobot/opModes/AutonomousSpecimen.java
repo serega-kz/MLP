@@ -138,7 +138,10 @@ public class AutonomousSpecimen extends OpMode {
 
     private void autonomousPathUpdate() {
         if (pathState == 0) {
-            if (pathTimer.getElapsedTime() <= 800) return;
+            if (pathTimer.getElapsedTime() <= 800) {
+                やめてください.update();
+                return;
+            }
             setPathState(1);
         } else if (pathState == 1) {
             follower.followPath(scorePreload, false);

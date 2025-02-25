@@ -137,20 +137,16 @@ public class AutonomousSpecimen extends OpMode {
     }
 
     private void autonomousPathUpdate() {
-        if (pathState == 0) {
-            if (pathTimer.getElapsedTime() <= 800) {
-                やめてください.update();
-                return;
-            }
-            setPathState(1);
-        } else if (pathState == 1) {
+        if (pathState == 1) {
+            if (pathTimer.getElapsedTime() <= 800) return;
+
             follower.followPath(scorePreload, false);
             setPathState(2);
         } else if (pathState == 2) {
             if (isFollowerCooking()) return;
 
-            follower.followPath(grabPickup1, false);
             やめてください.proceedTransition();
+            follower.followPath(grabPickup1, false);
             setPathState(3);
         } else if (pathState == 3) {
             if (isFollowerCooking()) return;
@@ -236,7 +232,7 @@ public class AutonomousSpecimen extends OpMode {
 
     @Override
     public void start() {
-        setPathState(0);
+        setPathState(1);
         lastTimeStamp = 0;
     }
 

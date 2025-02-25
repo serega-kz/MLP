@@ -95,16 +95,16 @@ public class ArmSubController {
     }
 
     public enum ArmState {
-        SAMPLE_INTAKE1(0.480, 0.540, 0.595, 0.285),
-        SAMPLE_INTAKE2(0.500, 0.880, 0.595, 0.285),
-        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.140),
-        SAMPLE_OUTTAKE1(0.480, 0.540, 0.595, 0.140),
-        SAMPLE_OUTTAKE2(0.480, 0.320, 0.180, 0.285),
-        SAMPLE_INTAKE_AUTO(0.000, 0.320, 0.315, 0.285),
-        SPECIMEN_INTAKE1(0.440, 0.640, 0.595, 0.285),
-        SPECIMEN_INTAKE2(0.440, 0.300, 0.595, 0.140),
-        SPECIMEN_OUTTAKE(0.240, 0.920, 0.005, 0.140),
-        ASCENT(0.480, 0.540, 0.595, 0.285);
+        SAMPLE_INTAKE1(0.480, 0.540, 0.605, 0.285),
+        SAMPLE_INTAKE2(0.500, 0.880, 0.605, 0.285),
+        SAMPLE_INTAKE3(0.600, 0.870, 0.000, 0.425),
+        SAMPLE_OUTTAKE1(0.480, 0.540, 0.605, 0.425),
+        SAMPLE_OUTTAKE2(0.480, 0.320, 0.195, 0.285),
+        SAMPLE_INTAKE_AUTO(0.000, 0.320, 0.325, 0.285),
+        SPECIMEN_INTAKE1(0.440, 0.640, 0.605, 0.285),
+        SPECIMEN_INTAKE2(0.440, 0.300, 0.605, 0.425),
+        SPECIMEN_OUTTAKE(0.240, 0.920, 0.055, 0.425),
+        ASCENT(0.480, 0.540, 0.605, 0.285);
 
         public final double shoulderPosition;
         public final double elbowPosition;

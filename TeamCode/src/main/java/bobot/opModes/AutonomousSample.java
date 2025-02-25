@@ -43,16 +43,16 @@ public class AutonomousSample extends OpMode {
     private VoltageSensor voltageSensor;
     private MultipleTelemetry multipleTelemetry;
 
-    private final Pose startPose = new Pose(7.9, 113.5, -PI / 2);
-    private final Pose scorePose = new Pose(13.0, 132.0, -PI / 4);
+    private final Pose startPose = new Pose(7.9, 114.0, -PI / 2);
+    private final Pose scorePose = new Pose(12.0, 133.0, -PI / 4);
 
     private final Pose score1CP = new Pose(24.0, 120.0);
 
-    private final Pose pickup1Pose = new Pose(24.0, 123.0, 0);
-    private final Pose pickup2Pose = new Pose(24.0, 133.0, 0);
+    private final Pose pickup1Pose = new Pose(24.0, 124.5, 0);
+    private final Pose pickup2Pose = new Pose(24.0, 133.5, 0);
 
     private final Pose pickup3CP = new Pose(48.0, 108.0);
-    private final Pose pickup3Pose = new Pose(46.5, 135.0, -PI / 2);
+    private final Pose pickup3Pose = new Pose(46.5, 134.5, -PI / 2);
     private final Pose score4CP = new Pose(48.0, 108.0);
 
     private final Pose parkCP = new Pose(72.0, 120.0);
@@ -170,6 +170,9 @@ public class AutonomousSample extends OpMode {
         } else if (pathState == 10) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE3) return;
             if (pathTimer.getElapsedTime() <= 1000) return;
+            setPathState(667);
+        } else if (pathState == 667) {
+            if (pathTimer.getElapsedTime() <= 1000) return;
 
             follower.setMaxPower(0.4);
             follower.followPath(scorePickup2);
@@ -190,11 +193,13 @@ public class AutonomousSample extends OpMode {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO) return;
             if (isFollowerCooking()) return;
 
+            follower.setMaxPower(0);
             やめてください.proceedAutoTransition();
             setPathState(14);
         } else if (pathState == 14) {
             if (やめてください.getCurrentState() != SAMPLE_INTAKE_AUTO_3) return;
 
+            follower.setMaxPower(0.6);
             follower.followPath(scorePickup3);
             setPathState(15);
         } else if (pathState == 15) {

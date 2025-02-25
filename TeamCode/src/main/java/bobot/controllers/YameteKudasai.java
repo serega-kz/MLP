@@ -215,12 +215,12 @@ public class YameteKudasai {
             slideSubController.setTargetPosition(SlideState.ZERO.targetPosition);
             currentState = SAMPLE_INTAKE_AUTO_1;
         } else if (currentState == SAMPLE_INTAKE_AUTO_1) {
-            if (transitionTimer.time() <= 500) return;
+            if (transitionTimer.time() <= 1000) return;
 
             armSubController.setClawPosition(ArmState.SAMPLE_OUTTAKE1.clawPosition);
             currentState = SAMPLE_INTAKE_AUTO_2;
         } else if (currentState == SAMPLE_INTAKE_AUTO_2) {
-            if (transitionTimer.time() <= 550) return;
+            if (transitionTimer.time() <= 1050) return;
 
             slideSubController.setTargetPosition(SlideState.SAMPLE_OUTTAKE_HIGH.targetPosition);
             currentState = SAMPLE_INTAKE_AUTO_3;
@@ -457,7 +457,7 @@ public class YameteKudasai {
     public void update() {
         if (targetState.ordinal() <= 6) {
             completeOpModeTransition();
-            return;
+            if (!isAutonomous) return;
         }
 
         pivotSubController.update();
@@ -474,6 +474,10 @@ public class YameteKudasai {
 
     public State getCurrentState() {
         return currentState;
+    }
+
+    public State getTargetState() {
+        return targetState;
     }
 
     public enum Alliance {RED, BLUE, NONE}

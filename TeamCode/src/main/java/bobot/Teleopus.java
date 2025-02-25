@@ -28,7 +28,7 @@ public class Teleopus extends LinearOpMode {
 
     protected Alliance alliance;
 
-    private double scaleInput(double input, boolean downscale) {
+    private double getInput(double input, boolean downscale) {
         double coefficient = downscale ? 0.40 : 1;
         return coefficient * Math.abs(input) * input;
     }
@@ -82,11 +82,11 @@ public class Teleopus extends LinearOpMode {
 
             boolean downscale = driverOp.getButton(Button.RIGHT_BUMPER) ^ やめてください.getCurrentState() == State.SAMPLE_INTAKE2;
 
-            double turnSpeed = scaleInput(driverOp.getRightX(), downscale);
+            double turnSpeed = getInput(driverOp.getRightX(), downscale);
             headingController.deviateTargetHeading(turnSpeed, period);
 
-            double forwardPower = scaleInput(driverOp.getLeftY(), downscale);
-            double strafePower = scaleInput(driverOp.getLeftX(), downscale);
+            double forwardPower = getInput(driverOp.getLeftY(), downscale);
+            double strafePower = getInput(driverOp.getLeftX(), downscale);
             double turnPower = headingController.calculate();
 
             follower.setTeleOpMovementVectors(forwardPower, strafePower, turnPower, true);
@@ -106,8 +106,8 @@ public class Teleopus extends LinearOpMode {
 
             if (driverOp.wasJustPressed(Button.A)) やめてください.proceedTransition();
 
-            double leftTrigger = scaleInput(driverOp.getTrigger(Trigger.LEFT_TRIGGER), downscale);
-            double rightTrigger = scaleInput(driverOp.getTrigger(Trigger.RIGHT_TRIGGER), downscale);
+            double leftTrigger = getInput(driverOp.getTrigger(Trigger.LEFT_TRIGGER), downscale);
+            double rightTrigger = getInput(driverOp.getTrigger(Trigger.RIGHT_TRIGGER), downscale);
 
             if (leftTrigger > 0) やめてください.deviateSlideTargetPosition(-leftTrigger, period);
             else if (rightTrigger > 0) やめてください.deviateSlideTargetPosition(rightTrigger, period);
@@ -117,6 +117,7 @@ public class Teleopus extends LinearOpMode {
 
             やめてください.update();
             multipleTelemetry.addData("scoring mode", scoringMode);
+            multipleTelemetry.addData("target state", やめてください.getTargetState());
             multipleTelemetry.addData("current state", やめてください.getCurrentState());
 
             double frequency = 1 / period;
